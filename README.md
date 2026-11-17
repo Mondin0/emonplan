@@ -22,15 +22,23 @@ La publicación está limitada a localhost. PostgreSQL no publica puertos. Las c
 
 ## Operación
 
-```sh
-make logs
-make down
-make up
-make test
-make dev
-```
+Ejecutá estos comandos desde la raíz del proyecto:
 
-`make down` conserva los datos en el volumen `postgres_data`. No usar `docker compose down -v` salvo que se quiera borrar toda la instalación. Las migraciones SQL versionadas se ejecutan durante el arranque del backend.
+| Comando | Qué hace |
+| --- | --- |
+| `./levantar.sh` | Crea `.env` si falta, construye e inicia los servicios y muestra su estado. |
+| `./cargar-ejemplos.sh` | Carga datos ficticios una sola vez en la base de datos iniciada. |
+| `./limpiar.sh` | Pide confirmar con `BORRAR` y elimina contenedores, imágenes locales, base de datos y `.env`. |
+| `make setup` | Crea `.env` con credenciales aleatorias si todavía no existe. |
+| `make up` | Construye e inicia los servicios en segundo plano; requiere `.env`. |
+| `make down` | Detiene y elimina los contenedores y la red, pero conserva el volumen de datos y `.env`. |
+| `make logs` | Muestra los registros de los servicios; salí con `Ctrl+C`. |
+| `make dev` | Inicia el entorno de desarrollo con recarga automática. |
+| `make test` | Ejecuta las pruebas locales y compila el frontend. |
+| `make test-integration` | Ejecuta las pruebas PostgreSQL con `TEST_DATABASE_URL` configurada. |
+| `make test-e2e` | Ejecuta el recorrido de aceptación en una instalación Docker temporal aislada. |
+
+`./limpiar.sh` borra también los datos reales, además de los ejemplos. No usar `docker compose down -v` salvo que se quiera borrar el volumen de la instalación. Las migraciones SQL versionadas se ejecutan durante el arranque del backend.
 
 Para respaldar:
 
