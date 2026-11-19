@@ -259,7 +259,7 @@ func registerQuotations(r chi.Router, db *pgxpool.Pool) {
 		var project string
 		var version int
 		var labor int64
-		err = db.QueryRow(r.Context(), `SELECT p.name,q.version,q.labor_cents FROM quotations q JOIN projects p ON p.id=q.project_id WHERE q.id=$1`, id).Scan(&project, &version, &labor)
+		err = db.QueryRow(r.Context(), `SELECT project_name,version,labor_cents FROM quotations WHERE id=$1`, id).Scan(&project, &version, &labor)
 		if err != nil {
 			http.NotFound(w, r)
 			return
@@ -342,7 +342,9 @@ func registerQuotations(r chi.Router, db *pgxpool.Pool) {
 		}
 		defer tx.Rollback(r.Context())
 		var id int64
-		err = tx.QueryRow(r.Context(), `INSERT INTO quotations(project_id,version,labor_cents) SELECT $1,COALESCE(MAX(version),0)+1,$2 FROM quotations WHERE project_id=$1 RETURNING id`, v.ProjectID, v.LaborCents).Scan(&id)
+		err = tx.QueryRow(r.Context(), `INSERT INTO quotations(project_id,project_name,version,labor_cents)
+            SELECT p.id, p.name, (SELECT COALESCE(MAX(version),0)+1 FROM quotations WHERE project_id=p.id), $2
+            FROM projects p WHERE p.id=$1 RETURNING id`, v.ProjectID, v.LaborCents).Scan(&id)
 		if err == nil {
 			_, err = tx.Exec(r.Context(), `INSERT INTO quotation_items(quotation_id,name,unit,quantity,price_cents,total_cents) SELECT $1,m.name,m.unit,pm.quantity,m.price_cents,round(pm.quantity*m.price_cents)::bigint FROM project_materials pm JOIN materials m ON m.id=pm.material_id WHERE pm.project_id=$2`, id, v.ProjectID)
 		}

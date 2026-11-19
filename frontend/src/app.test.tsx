@@ -225,3 +225,29 @@ it('abre el editor de la obra y permite probar una conmutación',async()=>{
  await userEvent.click(screen.getByLabelText('Accionar Conmutador 1'));
  expect(screen.getByText(/Lámpara 1 · Apagada/)).toBeTruthy();
 });
+
+it('carga pesos y muestra la obra, versión y total emitidos', async () => {
+ const fetcher = vi.fn(async (path:string, options?:RequestInit) => {
+  const data = path === '/api/projects' ? [{id:7,name:'Casa actual'}] :
+   path === '/api/quotations' ? [{id:3,project_name:'Casa original',version:2,total_cents:1750025}] : [];
+  return {ok:true,status:200,json:async()=>data};
+ });
+ vi.stubGlobal('fetch',fetcher);
+ render(<App/>);
+ await userEvent.click(await screen.findByRole('button',{name:'Presupuestos'}));
+ const input = screen.getByLabelText('Mano de obra (pesos)');
+ await userEvent.selectOptions(screen.getByLabelText('Obra del presupuesto'),'7');
+ await userEvent.type(input,'15000,259');
+ await userEvent.click(screen.getByRole('button',{name:'Guardar'}));
+ expect(screen.getByRole('alert').textContent).toContain('15.000,25');
+ expect(fetcher.mock.calls.some(([,opts])=>opts?.method==='POST')).toBe(false);
+ await userEvent.clear(input);
+ await userEvent.type(input,'15.000,25');
+ await userEvent.click(screen.getByRole('button',{name:'Guardar'}));
+ expect(fetcher.mock.calls.find(([path,opts])=>path==='/api/quotations' && opts?.method==='POST')?.[1]?.body)
+  .toBe(JSON.stringify({project_id:7,labor_cents:1500025}));
+ const row = (await screen.findByText('Casa original')).closest('tr')!;
+ expect(within(row).getByText('2')).toBeTruthy();
+ expect(within(row).getByText(/\$\s*17\.500,25/)).toBeTruthy();
+ expect(within(row).getByRole('link',{name:'PDF'}).getAttribute('href')).toBe('/api/quotations/3/pdf');
+});

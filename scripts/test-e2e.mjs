@@ -15,11 +15,28 @@ try {
   await page.getByRole('heading', { name: 'Resumen' }).waitFor();
 
   // Datos de ejemplo (U1-U6): carga repetible dentro de la base del entorno aislado.
-  const seedExamples = () => execFileSync('docker', ['compose', '-f', 'compose.yaml', '--env-file', '/dev/null', 'exec', '-T', 'db',
-    'psql', '-v', 'ON_ERROR_STOP=1', '-U', 'emonplan', '-d', 'emonplan'],
-    { input: readFileSync('scripts/ejemplos.sql') });
+  const sql = input => execFileSync('docker', ['compose', '-f', 'compose.yaml', '--env-file', '/dev/null', 'exec', '-T', 'db',
+    'psql', '-At', '-v', 'ON_ERROR_STOP=1', '-U', 'emonplan', '-d', 'emonplan'],
+    { input, encoding: 'utf8' }).trim();
+  assert.equal(sql("SELECT to_regclass('example_seeds') IS NOT NULL"), 't', 'Las migraciones deben preparar el registro de seeds');
+  // Exercise the upgrade from the original name-only registry without touching the installed schema.
+  const migration = readFileSync('backend/migrations/005_example_seeds.sql', 'utf8');
+  const legacy = sql(`BEGIN;
+    CREATE SCHEMA legacy_seed_test;
+    SET LOCAL search_path TO legacy_seed_test, public;
+    CREATE TABLE example_seeds(name text PRIMARY KEY);
+    INSERT INTO example_seeds VALUES ('v1');
+    ${migration}
+    SELECT name FROM example_seeds WHERE client_id IS NULL;
+    ROLLBACK;`);
+  assert.ok(legacy.split('\n').includes('v1'), 'La actualización debe conservar las marcas anteriores');
+  const seedExamples = () => sql(readFileSync('scripts/ejemplos.sql'));
   seedExamples();
+  assert.equal(sql("SELECT count(*) FROM activities WHERE description='Visita de ejemplo'"), '1');
+  sql("UPDATE projects SET description='Edición local' WHERE name='Proyecto de ejemplo'; DELETE FROM activities WHERE description='Visita de ejemplo' RETURNING id");
   seedExamples();
+  assert.equal(sql("SELECT count(*) FROM projects WHERE description='Edición local'"), '1');
+  assert.equal(sql("SELECT count(*) FROM activities WHERE description='Visita de ejemplo'"), '0');
 
   async function create(section, values) {
     await page.getByRole('button', { name: section, exact: true }).click();
@@ -205,11 +222,27 @@ try {
   await page.getByText(/Lámpara 1 · Apagada/).waitFor();
   await create('Materiales', { Nombre: 'Cable E2E', Unidad: 'm', 'Precio (centavos)': '12500' });
   await create('Cómputo', { 'ID de proyecto': 'Proyecto E2E', 'ID de material': 'Cable E2E', Cantidad: '2' });
-  const quote = await create('Presupuestos', { 'ID de proyecto': 'Proyecto E2E', 'Mano de obra (centavos)': '10000' });
+  const quote = await create('Presupuestos', { 'Obra del presupuesto': 'Proyecto E2E', 'Mano de obra (pesos)': '100,25' });
+  const quoteRow = page.getByRole('row').filter({ has: page.locator(`a[href="/api/quotations/${quote}/pdf"]`) });
+  await quoteRow.getByRole('cell', { name: 'Proyecto E2E', exact: true }).waitFor();
+  await quoteRow.getByRole('cell', { name: '1', exact: true }).waitFor();
+  await quoteRow.getByRole('cell', { name: /\$\s*350,25/ }).waitFor();
   const pdf = await page.request.get(`${base}/api/quotations/${quote}/pdf`);
   assert.equal(pdf.status(), 200);
   assert.match(pdf.headers()['content-type'], /^application\/pdf/);
   assert.equal((await pdf.body()).subarray(0, 5).toString(), '%PDF-');
+  const pdfText = async response => execFileSync('pdftotext', ['-', '-'], { input: await response.body(), encoding: 'utf8' });
+  assert.match(await pdfText(pdf), /Proyecto: Proyecto E2E\s/);
+  async function renameProject(name) {
+    const response = await page.request.put(`${base}/api/projects/${project}`, {
+      headers: { Origin: base }, data: { name }
+    });
+    assert.equal(response.status(), 200);
+  }
+  await renameProject('Obra renombrada');
+  const downloadedAgain = await page.request.get(`${base}/api/quotations/${quote}/pdf`);
+  assert.match(await pdfText(downloadedAgain), /Proyecto: Proyecto E2E\s/);
+  await renameProject('Proyecto E2E');
   await create('Actividades', { 'ID de proyecto': 'Proyecto E2E', Descripción: 'Visita E2E', Fecha: '2026-11-16' });
 
   await page.getByRole('button', { name: 'Planos', exact: true }).click();

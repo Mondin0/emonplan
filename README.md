@@ -8,7 +8,7 @@ Requiere Docker Engine y Docker Compose v2 reciente (soporte de `!reset`).
 
 Para iniciar la aplicación desde la raíz del proyecto, ejecutá `./levantar.sh`. Para apagarla y borrar su instalación local desde cero, ejecutá `./limpiar.sh` y escribí `BORRAR` cuando lo solicite. Esto elimina todos los datos y las credenciales de EmonPlan; el código del proyecto se conserva.
 
-Con la aplicación iniciada, `./cargar-ejemplos.sh` agrega datos ficticios para la demo. Abrí **Centro Cultural La Estación** desde Proyectos para ver un unifilar con dos tableros y seis circuitos. La misma obra tiene materiales, cómputo, un presupuesto con PDF y actividades. Los importes y valores eléctricos son solo para pruebas. Cada versión de los ejemplos se carga una vez por base de datos. Repetir la carga aplica las versiones pendientes y conserva las ediciones y bajas previas.
+Con la aplicación iniciada, `./cargar-ejemplos.sh` agrega datos ficticios para la demo. Abrí **Centro Cultural La Estación** desde Proyectos para ver un unifilar con dos tableros y seis circuitos. La misma obra tiene materiales, cómputo, un presupuesto con PDF y actividades. Los importes y valores eléctricos son solo para pruebas. El backend prepara el registro de versiones de ejemplos al aplicar las migraciones, incluso en instalaciones que ya cargaron ejemplos. Los datos ficticios se cargan solo al ejecutar el script. Cada versión de los ejemplos se carga una vez por base de datos. Repetir la carga aplica las versiones pendientes y conserva las ediciones y bajas previas.
 
 ```sh
 make setup
@@ -73,7 +73,7 @@ Cada funcionalidad o corrección comienza con una prueba que falla por el compor
 
 - `make test` ejecuta las pruebas Go y del frontend y compila el frontend. Sin `TEST_DATABASE_URL`, la prueba de integración PostgreSQL se omite.
 - `TEST_DATABASE_URL=... make test-integration` ejecuta las migraciones y prueba planos sobre PostgreSQL. Necesita permiso para crear y eliminar un esquema temporal propio; usar una base de pruebas.
-- `make test-e2e` crea una instalación Compose aislada con credenciales y volumen temporales, prueba autenticación, cliente, proyecto, tablero, circuito, unifilar, materiales, cómputo, presupuesto, PDF, actividad y planos, y comprueba la persistencia tras reiniciar. Elimina únicamente los recursos del proyecto temporal. Requiere Docker y Compose, OpenSSL, dependencias del frontend (`cd frontend && npm ci`) y Chromium de Playwright (`cd frontend && npx playwright install chromium`).
+- `make test-e2e` crea una instalación Compose aislada con credenciales y volumen temporales, prueba autenticación, cliente, proyecto, tablero, circuito, unifilar, materiales, cómputo, presupuesto, PDF, actividad y planos, y comprueba la persistencia tras reiniciar. Elimina únicamente los recursos del proyecto temporal. Requiere Docker y Compose, OpenSSL, pdftotext (Poppler), dependencias del frontend (`cd frontend && npm ci`) y Chromium de Playwright (`cd frontend && npx playwright install chromium`).
 
 Los resultados concretos se informan al finalizar la implementación; la creación de archivos por sí sola no acredita esos resultados.
 

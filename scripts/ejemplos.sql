@@ -1,7 +1,5 @@
 BEGIN;
 SELECT pg_advisory_xact_lock(1735427);
-CREATE TABLE IF NOT EXISTS example_seeds (name text PRIMARY KEY);
-ALTER TABLE example_seeds ADD COLUMN IF NOT EXISTS client_id bigint REFERENCES clients(id) ON DELETE SET NULL;
 DO $$
 DECLARE
   client_id bigint;
@@ -24,7 +22,7 @@ BEGIN
   INSERT INTO materials(name, category, unit, price_cents)
     VALUES ('Cable de ejemplo', 'Ficticio', 'm', 100000) RETURNING id INTO cable_id;
   INSERT INTO project_materials(project_id, material_id, quantity) VALUES (project_id, cable_id, 50);
-  INSERT INTO quotations(project_id, version, labor_cents) VALUES (project_id, 1, 1000000) RETURNING id INTO quote_id;
+  INSERT INTO quotations(project_id, project_name, version, labor_cents) SELECT id, name, 1, 1000000 FROM projects WHERE id = project_id RETURNING id INTO quote_id;
   INSERT INTO quotation_items(quotation_id, name, unit, quantity, price_cents, total_cents)
     VALUES (quote_id, 'Cable de ejemplo', 'm', 50, 100000, 5000000);
   INSERT INTO activities(project_id, description, observation, occurred_on)
@@ -87,8 +85,8 @@ BEGIN
     INSERT INTO project_materials(project_id, material_id, quantity)
       SELECT demo_project_id, m.id, d.quantity FROM new_materials m JOIN demo_materials d USING (name);
 
-    INSERT INTO quotations(project_id, version, labor_cents)
-      VALUES (demo_project_id, 1, 18000000) RETURNING id INTO quote_id;
+    INSERT INTO quotations(project_id, project_name, version, labor_cents)
+      SELECT id, name, 1, 18000000 FROM projects WHERE id = demo_project_id RETURNING id INTO quote_id;
     INSERT INTO quotation_items(quotation_id, name, unit, quantity, price_cents, total_cents)
       SELECT quote_id, m.name, m.unit, pm.quantity, m.price_cents, round(pm.quantity*m.price_cents)::bigint
       FROM project_materials pm JOIN materials m ON m.id=pm.material_id
