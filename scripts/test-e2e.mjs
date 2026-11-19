@@ -143,6 +143,87 @@ try {
   await lessonButton('Normal').press('Enter');
   assert.equal(await diagram('Disparo del diferencial').innerHTML(), normalDiagram);
 
+  const practiceWrites = [];
+  const recordWrite = request => {
+    if (request.url().includes('/api/') && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(request.method())) {
+      practiceWrites.push(request.method());
+    }
+  };
+  page.on('request', recordWrite);
+  await page.setViewportSize({width: 390, height: 844});
+  await lessonButton('Inicio').click();
+  await lessonButton('Abrir capacitación').press('Enter');
+  await page.getByRole('heading', {name: 'Electricidad domiciliaria'}).waitFor();
+  assert.equal(await page.locator('.lesson-module').count(), 7);
+  assert.equal(await page.locator('.lesson-catalog button').count(), 38);
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
+  const lessonTitles = await page.locator('.lesson-catalog button').allTextContents();
+  for (const title of lessonTitles) {
+    await lessonButton(title).press('Enter');
+    const teachingDiagram = page.getByRole('figure', {name: 'Diagrama didáctico'});
+    await teachingDiagram.waitFor({state: 'visible'});
+    assert.equal(await teachingDiagram.locator('figcaption').isVisible(), true, title);
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, title);
+    await lessonButton('Volver a lecciones').press('Enter');
+  }
+  await lessonButton('Mapa de una instalación domiciliaria').press('Enter');
+  const flow = page.getByRole('list', {name: 'Recorrido', exact: true});
+  const direction = () => flow.evaluate(list => getComputedStyle(list).flexDirection);
+  assert.equal(await direction(), 'column');
+  await page.setViewportSize({width: 1280, height: 720});
+  assert.equal(await direction(), 'row');
+  await page.setViewportSize({width: 390, height: 844});
+  await lessonButton('Volver a lecciones').press('Enter');
+  await lessonButton('Tanque y cisterna con una bomba').press('Enter');
+  await lessonButton('Cisterna baja').press('Enter');
+  await page.getByText('Bomba detenida', {exact: true}).waitFor();
+  await lessonButton('Ambos permisos').press('Enter');
+  await page.getByText('Bomba en marcha', {exact: true}).waitFor();
+  await lessonButton('Volver a lecciones').press('Enter');
+  await lessonButton('Llave de un punto y dos lámparas').press('Enter');
+  const doubleLamp = diagram('Llave de un punto y dos lámparas');
+  const bothOn = await doubleLamp.innerHTML();
+  await lessonButton('Falla en lámpara 1').press('Enter');
+  assert.notEqual(await doubleLamp.innerHTML(), bothOn);
+  await page.getByText(/la lámpara 2 sigue encendida/i).waitFor();
+  await lessonButton('La lámpara 2 sigue funcionando').press('Enter');
+  await page.getByText(/^Correcto\./).waitFor();
+  await lessonButton('Volver a lecciones').press('Enter');
+  assert.equal(await lessonButton('Llave de un punto y dos lámparas').evaluate(element => element === document.activeElement), true);
+  await lessonButton('Pelacables').press('Enter');
+  const stripper = page.getByRole('img', {name: /pelacables manual con mordazas/i});
+  await stripper.waitFor();
+  await stripper.evaluate(image => image.decode());
+  await lessonButton('Volver a lecciones').click();
+  await lessonButton('Automático en modo cisterna').press('Enter');
+  await lessonButton('Nivel alto').press('Enter');
+  await page.getByText('La bomba arranca para sacar agua', {exact: false}).waitFor();
+  await lessonButton('Nivel bajo').press('Enter');
+  await page.getByText('La bomba se detiene al alcanzar el nivel bajo', {exact: false}).waitFor();
+  await lessonButton('Volver a lecciones').press('Enter');
+  await lessonButton('Fotocélula de cuatro hilos').press('Enter');
+  await lessonButton('Noche').press('Enter');
+  await page.getByText('Lámpara encendida', {exact: true}).waitFor();
+  await lessonButton('Entre fase conmutada y neutro de salida').press('Enter');
+  await page.getByText(/^Correcto[.]/).waitFor();
+  await lessonButton('Volver a lecciones').press('Enter');
+  await lessonButton('Cómo buscar una pérdida').press('Enter');
+  await lessonButton('Circuito, hora, humedad y cargas conectadas').press('Enter');
+  await page.getByText(/^Correcto\./).waitFor();
+  await lessonButton('Siguiente lección').press('Enter');
+  await lessonButton('Ir a Obras').press('Enter');
+  await page.getByRole('heading', {name: 'Obras', exact: true, level: 2}).waitFor();
+  await page.getByText(projectMvp, {exact: true}).waitFor();
+  await lessonButton('Clientes').click();
+  await page.getByRole('heading', {name: 'Clientes', exact: true, level: 2}).waitFor();
+  await page.getByText(clientMvp, {exact: true}).waitFor();
+  await lessonButton('Materiales').click();
+  await page.getByRole('heading', {name: 'Materiales', exact: true, level: 2}).waitFor();
+  await page.getByText(cableMvp, {exact: true}).waitFor();
+  page.off('request', recordWrite);
+  assert.deepEqual(practiceWrites, []);
+  await page.setViewportSize({width: 1280, height: 720});
+
   // Datos de ejemplo (U1-U6): carga repetible dentro de la base del entorno aislado.
   const sql = input => execFileSync('docker', ['compose', '-f', 'compose.yaml', '--env-file', '/dev/null', 'exec', '-T', 'db',
     'psql', '-At', '-v', 'ON_ERROR_STOP=1', '-U', 'emonplan', '-d', 'emonplan'],

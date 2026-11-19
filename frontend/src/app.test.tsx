@@ -252,7 +252,7 @@ it('carga pesos y muestra la obra, versión y total emitidos', async () => {
  expect(within(row).getByRole('link',{name:'PDF'}).getAttribute('href')).toBe('/api/quotations/3/pdf');
 });
 
-it('explora seis lecciones después de iniciar sesión y reinicia el ejemplo al salir',async()=>{
+it('conserva las seis lecciones originales y reinicia el ejemplo al salir',async()=>{
  const fetcher=vi.fn().mockResolvedValueOnce({ok:false,status:401,text:async()=>''})
   .mockResolvedValueOnce({ok:true,status:204})
   .mockImplementation(async()=>({ok:true,status:200,json:async()=>[]}));
@@ -295,7 +295,7 @@ it('explora seis lecciones después de iniciar sesión y reinicia el ejemplo al 
  expect(button('Abierto').getAttribute('aria-pressed')).toBe('true');
  await user.click(button('Volver a lecciones'));
  await user.click(button('Disparo del diferencial'));
- expect(screen.queryByRole('button',{name:'Siguiente lección'})).toBeNull();
+ expect(button('Siguiente lección')).toBeTruthy();
  const normal=screen.getByRole('img',{name:'Disparo del diferencial'}).innerHTML;
  await user.click(button('Fuga hipotética'));
  expect(screen.getByRole('img',{name:'Disparo del diferencial'}).innerHTML).not.toBe(normal);

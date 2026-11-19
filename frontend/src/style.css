@@ -6,7 +6,23 @@ select{font:inherit;display:block;width:100%;padding:.65rem;border:1px solid #76
 .unifilar-flow{height:480px;margin-top:1rem;border:1px solid #d8e1de;border-radius:6px}.unifilar-flow button{border:1px solid #b7c5c1}.unifilar-node{padding:.5rem .9rem;border-radius:6px;font-size:.85rem;white-space:nowrap}.unifilar-board{background:#087c72;color:white;font-weight:600}.unifilar-circuit{background:white;border:1px solid #b7c5c1}.unifilar-empty{background:#f2f5f4;border:1px dashed #767676;color:#66807a}.unifilar-edge{stroke:#5c7a73;stroke-width:2;fill:none}.visually-hidden:where(:not(:focus-within,:active)){position:absolute!important;clip-path:inset(50%)!important;overflow:hidden!important;width:1px!important;height:1px!important;margin:-1px!important;padding:0!important;border:0!important;white-space:nowrap!important}
 
 .lesson { max-width: 56rem; }
-.lesson-catalog { display: grid; gap: .65rem; padding-inline-start: 1.7rem; }
+.lesson-overview { max-width: 74rem; }
+.lesson-modules { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); gap: 1rem; margin-top: 1.4rem; }
+.lesson-module { border: 1px solid #d8e1de; border-radius: .7rem; padding: 1rem; }
+.lesson-module h4 { margin: 0 0 .75rem; color: #224b44; font-size: 1.05rem; }
+.lesson-catalog { display: grid; gap: .25rem; list-style: none; margin: 0; padding: 0; }
+.lesson-catalog button { width: 100%; text-align: start; color: #173f38; background: #eef5f2; }
+.lesson-article > p { max-width: 68ch; line-height: 1.55; }
+.lesson-position { margin-block: 1rem .25rem; font-size: .9rem; color: #415f57; }
+.lesson-position + h3 { margin-block: .25rem .75rem; }
+.lesson-back { background: #eef5f2; color: #173f38; }
+.lesson-source a { color: #165b50; overflow-wrap: anywhere; }
+.lesson-tool { position: relative; width: min(100%, 18rem); aspect-ratio: 1; overflow: hidden; border-radius: .6rem; }
+.lesson-tool img { position: absolute; inset: 0 auto auto 0; display: block; width: 200%; max-width: none; height: 200%; }
+.lesson-tool-destornilladores img { inset-inline-start: -100%; }
+.lesson-tool-alicate img { inset-block-start: -100%; }
+.lesson-tool-pasacables img { inset: -100% auto auto -100%; }
+.lesson :is(button, h3):focus-visible { outline: 3px solid #1748ac; outline-offset: 3px; }
 .lesson figure { margin: 1rem 0; }
 .lesson-diagram { display: block; width: 100%; max-width: 42rem; background: #f2f7f5; border-radius: .6rem; color: #233a34; }
 .lesson-diagram :is(path, rect, ellipse, circle) { fill: none; stroke: currentColor; stroke-width: 2.5; }
@@ -17,6 +33,51 @@ select{font:inherit;display:block;width:100%;padding:.65rem;border:1px solid #76
 .lesson-diagram .lesson-part-selected { color: #1748ac; font-weight: 700; }
 .lesson-diagram .lesson-part-selected :is(path, rect, ellipse, circle) { stroke-width: 4.5; }
 .lesson figcaption { margin-top: .4rem; }
+.lesson-flow {
+  container-type: inline-size;
+  max-inline-size: 48rem;
+  background: #f1f7f4;
+  border: 1px solid #b9cec6;
+  border-radius: .7rem;
+  padding: clamp(.75rem, 3%, 1.25rem);
+}
+.lesson-flow figcaption { margin: 0 0 .9rem; font-weight: 700; }
+.lesson-flow-lane + .lesson-flow-lane { margin-block-start: .9rem; }
+.lesson-flow-lane strong { display: block; margin-block-end: .4rem; color: #22594d; }
+.lesson-flow ol { display: flex; flex-direction: column; gap: 1.25rem; list-style: none; margin: 0; padding: 0; }
+.lesson-flow li {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-inline-size: 0;
+  padding: .55rem .65rem;
+  border: 1px solid #b9cec6;
+  border-radius: .4rem;
+  background: white;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+.lesson-flow li:last-child { background: #e0efe8; color: #153e35; }
+.lesson-flow li + li::before {
+  content: "";
+  position: absolute;
+  inset-block-start: -1rem;
+  inset-inline-start: calc(50% - .2rem);
+  inline-size: .45rem;
+  block-size: .45rem;
+  border-inline-end: 2px solid #477669;
+  border-block-end: 2px solid #477669;
+  transform: rotate(45deg);
+}
+@container (min-inline-size: 32rem) {
+  .lesson-flow ol { flex-direction: row; }
+  .lesson-flow li { flex: 1; }
+  .lesson-flow li + li::before {
+    inset-block-start: calc(50% - .225rem);
+    inset-inline-start: -.95rem;
+    transform: rotate(-45deg);
+  }
+}
 .lesson fieldset { min-inline-size: 0; margin: 1rem 0; border: 1px solid #a9bcb4; border-radius: .6rem; }
 .lesson legend { font-weight: 700; }
 .lesson-controls { display: flex; flex-wrap: wrap; gap: .5rem; }

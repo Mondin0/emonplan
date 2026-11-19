@@ -1,5 +1,28 @@
-export const lessons = [
-  {
+export type Diagram = 'conductores' | 'tension' | 'tablero' | 'una-lampara' |
+  'toma' | 'diferencial' | 'dos-lamparas' | 'timbre' | 'tierra' | 'plano' |
+  'tanque-elevado' | 'cisterna' | 'fotocelula-2' | 'fotocelula-3' | 'fotocelula-4' |
+  'lazo-serie' | 'medicion-corriente' | 'dos-flotantes' | 'mordaza';
+
+export type FlowDiagram = {
+  caption: string;
+  lanes: [label: string, firstStep: string, ...followingSteps: string[]][];
+};
+
+export type LessonContent = {
+  title: string;
+  intro: string;
+  details?: string[];
+  diagram: Diagram | FlowDiagram;
+  components?: {name: string; description: string}[];
+  toolImage?: 'pelacables' | 'destornilladores' | 'alicate' | 'pasacables';
+  question: string;
+  answers: {label: string; explanation: string; correct: boolean}[];
+  source?: {label: string; url: string};
+};
+
+export const introductoryLessons = {
+  'conductores': {
+    diagram: 'conductores',
     title: 'Fase, neutro y tierra',
     intro: 'En el circuito monofásico del ejemplo, la carga recibe tensión entre fase y neutro. El conductor de protección conecta la carcasa metálica al sistema de puesta a tierra para contribuir a la protección en caso de falla.',
     components: [
@@ -14,7 +37,8 @@ export const lessons = [
       { label: 'Fase y tierra de protección', explanation: 'La tierra de protección cumple una función de seguridad. En el camino normal de la carga interviene el neutro.', correct: false },
     ],
   },
-  {
+  'tension': {
+    diagram: 'tension',
     title: 'Tensión y corriente',
     intro: 'La tensión es una diferencia de potencial entre dos puntos y se expresa en voltios (V). La corriente mide cuánto flujo de carga atraviesa una sección del circuito por unidad de tiempo y se expresa en amperios (A). En corriente alterna el sentido de la corriente cambia periódicamente.',
     components: [
@@ -28,9 +52,12 @@ export const lessons = [
       { label: 'Sí, puede haber tensión entre los contactos', explanation: 'En el circuito ideal, la abertura impide la corriente por la rama, aunque la fuente mantiene una diferencia de potencial entre los contactos.', correct: true },
     ],
   },
-  {
+  'tablero': {
+    diagram: 'tablero',
     title: 'Protecciones',
     intro: 'En un tablero se pueden cumplir dos funciones distintas. La protección contra sobrecorriente responde a sobrecargas y cortocircuitos. La protección diferencial responde al desequilibrio de corriente entre los conductores activos que supervisa.',
+    details: ['El dibujo compara funciones de protección. Un ejemplo de distribución puede tener protección coordinada aguas arriba, diferencial y térmicas de los circuitos aguas abajo. Fase y neutro del grupo atraviesan el sensor del diferencial. El PE sigue por el sistema de protección separado. El orden y la coordinación dependen del proyecto y del equipo.'],
+    source: {label: 'Schneider Electric · Diferencial puro y combinado', url: 'https://www.se.com/us/en/faqs/FA89258/'},
     components: [
       { name: 'Interruptor termomagnético', description: 'Su parte térmica responde a sobrecargas sostenidas. Su parte magnética actúa rápidamente ante sobrecorrientes elevadas, como las de un cortocircuito.' },
       { name: 'Interruptor diferencial', description: 'El diferencial puro (RCCB) detecta corriente residual. La protección contra sobrecarga y cortocircuito requiere una función aparte.' },
@@ -42,9 +69,11 @@ export const lessons = [
       { label: 'La protección contra sobrecorriente', explanation: 'La atiende la parte térmica de un termomagnético o la función de sobrecorriente de un RCBO.', correct: true },
     ],
   },
-  {
+  'una-lampara': {
+    diagram: 'una-lampara',
     title: 'Iluminación',
     intro: 'El esquema representa el mando de una luminaria desde un solo punto. La llave y la luminaria están en el mismo lazo. El estado de la llave determina si ese lazo queda abierto o cerrado.',
+    details: ['Seguí el recorrido del dibujo: fase → llave de un punto → retorno → lámpara → neutro. La llave del ejemplo actúa sobre la fase. Si una luminaria requiere PE, la protección llega a la carcasa por su propio conductor.'],
     components: [
       { name: 'Interruptor', description: 'Abre o cierra el lazo de la luminaria. El esquema muestra su función de mando.' },
       { name: 'Lámpara', description: 'Es la carga del circuito. En el modelo ideal se enciende cuando el lazo está cerrado y se apaga cuando se interrumpe la corriente.' },
@@ -56,9 +85,11 @@ export const lessons = [
       { label: 'Se corta la alimentación de toda la vivienda', explanation: 'La llave controla la rama de la luminaria del ejemplo. Las demás ramas quedan fuera de su mando.', correct: false },
     ],
   },
-  {
+  'toma': {
+    diagram: 'toma',
     title: 'Tomacorrientes',
     intro: 'En el ejemplo, dos tomacorrientes alimentan cargas en paralelo. Cada carga se conecta entre los mismos dos puntos de alimentación y tiene su propia rama. Mientras la alimentación común siga disponible, abrir una rama no abre la otra.',
+    details: ['En la conexión conceptual del toma, identificá tres funciones: alimentación en L, neutro en N y protección en el borne PE. Al agregar un segundo toma, cada uno queda entre L y N, y el PE conserva continuidad hacia los dos. En obra se identifican los bornes por el marcado y las instrucciones del modelo.'],
     components: [
       { name: 'Tomacorriente 1', description: 'La primera carga tiene su propio camino entre fase y neutro. Al desenchufarla se abre su rama.' },
       { name: 'Tomacorriente 2', description: 'La segunda carga está en otra rama entre los mismos puntos. Puede seguir funcionando cuando la primera se desenchufa.' },
@@ -70,13 +101,14 @@ export const lessons = [
       { label: 'Puede seguir funcionando', explanation: 'La segunda rama mantiene su propio lazo mientras siga disponible la alimentación común.', correct: true },
     ],
   },
-  {
+  'diferencial': {
+    diagram: 'diferencial',
     title: 'Disparo del diferencial',
     intro: 'En el caso ficticio, una falla de aislamiento genera una fuga por un camino externo a los conductores vigilados. Compará la condición normal con la falla para entender qué detecta el diferencial.',
     components: [
       { name: 'Fase y neutro', description: 'En el modelo normal, las corrientes de fase y neutro se compensan al atravesar el sensor en sentidos opuestos.' },
       { name: 'Sensor diferencial', description: 'Detecta la suma de las corrientes de los conductores activos que lo atraviesan. En el ejemplo, un desequilibrio suficiente hace que el dispositivo abra el circuito.' },
-      { name: 'Fuga', description: 'Parte de la corriente circula por un camino alternativo fuera del sensor. El disparo permite reconocer el desequilibrio, pero por sí solo no localiza la causa.' },
+      { name: 'Fuga', description: 'Parte de la corriente circula por un camino alternativo fuera del sensor. El disparo permite reconocer el desequilibrio, pero por sí solo no localiza la causa. En otros circuitos puede existir una pequeña corriente residual debida a filtros, incluso sin una falla de aislamiento.' },
     ],
     question: '¿Qué detecta el diferencial en el caso de la fuga?',
     answers: [
@@ -84,4 +116,4 @@ export const lessons = [
       { label: 'Cuánta corriente consume en total la carga', explanation: 'La corriente de consumo puede estar equilibrada entre fase y neutro. El sensor diferencial responde a la corriente residual.', correct: false },
     ],
   },
-];
+} satisfies Record<string, LessonContent>;
