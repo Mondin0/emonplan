@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MVP de EmonPlan · De la primera obra al presupuesto</title>
+  <style>
+    :root { color-scheme: light; font: 100%/1.6 system-ui, sans-serif; color: #152721; background: #f3f5ef; }
+    body { margin: 0; }
+    main { max-inline-size: 52rem; margin-inline: auto; padding: clamp(1rem, 5vw, 3rem); }
+    h1, h2, h3 { line-height: 1.2; }
+    h1 { font-size: clamp(2rem, 6vw, 3rem); margin-block: 0 1rem; }
+    header { border-block-start: .4rem solid #226045; padding-block-start: 1.5rem; }
+    section { margin-block-start: 2rem; }
+    .recorrido { padding: 1rem 1.5rem 1rem 2.5rem; background: white; border: 1px solid #c7d3c8; border-radius: .75rem; }
+    li + li { margin-block-start: .65rem; }
+    .casos { padding-inline-start: 1.35rem; }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>De la primera obra al presupuesto</h1>
+    <p>MVP de EmonPlan para una persona que empieza a usar la aplicación y quiere preparar un presupuesto con los precios, cantidades y datos de trabajo que ya conoce.</p>
+  </header>
+
+  <section>
+    <h2>El caso de Casa de Martín</h2>
+    <p>Hoy, para presupuestar una obra hay que pasar por Clientes, Proyectos, Materiales, Cómputo y Presupuestos. La obra se vuelve a elegir al cargar materiales y al emitir el presupuesto. En el piloto, Martín se puede dar de alta durante la creación y el presupuesto se prepara dentro de Casa de Martín.</p>
+    <ol class="recorrido">
+      <li><strong>Inicio u Obras → Nueva obra.</strong> Escribís «Casa de Martín». Elegís a Martín de la lista o lo agregás ahí mismo. Guardás la obra y entrás directamente a su presupuesto, con cliente y estado visibles arriba. Inicio muestra las últimas obras creadas.</li>
+      <li><strong>Materiales de la obra.</strong> Elegís un material del catálogo o cargás uno nuevo en el presupuesto. Por ejemplo, «Cable», unidad «m», precio por unidad «125,00», proveedor «Electricidad Centro» y cantidad «2». El catálogo guarda el material con su proveedor y la obra guarda la cantidad. Podés corregir o quitar cantidades antes de generar otra versión.</li>
+      <li><strong>Mano de obra.</strong> Si todavía no conocés los materiales, podés generar una versión con un importe de mano de obra, por ejemplo «100,25». Cuando agregues los dos metros de cable, una segunda versión suma $350,25. También podés presupuestar materiales con mano de obra en cero.</li>
+      <li><strong>Compartir presupuesto.</strong> Recién generada una versión, encontrás su PDF y un texto listo para WhatsApp. Descargás el archivo, copiás el texto y adjuntás el PDF en WhatsApp. Las versiones anteriores se pueden volver a descargar desde la misma obra.</li>
+    </ol>
+    <p>Mensaje de ejemplo: «Hola, Martín. Te adjunto el presupuesto para la obra Casa de Martín. Cualquier duda, avisame».</p>
+  </section>
+
+  <section>
+    <h2>Implementación</h2>
+    <ul>
+      <li>Agregar en React el listado de Obras, el alta guiada y el presupuesto por obra. Los formularios muestran ejemplos de importes en pesos y mantienen los datos ingresados si hay un error. Los accesos actuales siguen disponibles durante el piloto, incluidos planos, tableros, circuitos, esquemas, unifilar y actividad.</li>
+      <li>Reutilizar el alta de clientes, obras y materiales, el cómputo y el PDF actual. Guardar el proveedor como texto opcional del material mediante una migración nueva, con el campo disponible también en el catálogo. Cada versión mantiene sus precios, cantidades e identificación histórica.</li>
+      <li>Después de guardar un cliente o material nuevo, usar su ID para el siguiente paso. Si falla la creación de la obra o la asociación del material, se puede reintentar ese paso con los datos guardados. Si falla la recarga del historial tras generar una versión, mantener su descarga disponible.</li>
+      <li>El mensaje se puede seleccionar y copiar a mano si el navegador bloquea el portapapeles. La app guía la preparación y el envío manual del archivo. Los datos técnicos y el criterio eléctrico quedan a cargo de quien realiza el trabajo.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Criterios de aceptación</h2>
+    <ol class="casos">
+      <li><strong>MVP-01 · Primera obra.</strong> Con una base vacía, crear a Martín desde Nueva obra y guardar Casa de Martín. Se abre su presupuesto y muestra cliente y estado Pendiente. Volver a Inicio, recargar y abrirla de nuevo desde las últimas obras. <em>Playwright con Docker.</em></li>
+      <li><strong>MVP-02 · Cliente existente y aislamiento.</strong> Con Casa de Martín creada, crear otra obra con el mismo cliente. El cliente se reutiliza y cada obra muestra solo sus materiales y versiones. <em>Prueba de interfaz y Playwright.</em></li>
+      <li><strong>MVP-03 · Guardados parciales.</strong> Simular un fallo al guardar la obra tras crear a Martín y al vincular el cable tras guardarlo en el catálogo. Al reintentar se conserva lo ingresado y se reutiliza el ID. Simular un fallo de lectura tras generar una versión y comprobar que todavía se puede descargar. <em>Pruebas de interfaz.</em></li>
+      <li><strong>MVP-04 · Presupuesto con y sin materiales.</strong> Con catálogo vacío, generar la versión 1 con $100,25 de mano de obra. Agregar 2 m de cable a $125,00 con proveedor «Electricidad Centro» y verificar que figura en el catálogo. Generar la versión 2 por $350,25. Una cantidad inválida o un importe con más de dos decimales debe mostrar cómo corregirse. <em>Pruebas de validación y Playwright con PostgreSQL.</em></li>
+      <li><strong>MVP-05 · PDF y mensaje.</strong> Descargar ambas versiones desde la obra y comprobar que el archivo es un PDF con la obra, la versión y el total correctos. Copiar el mensaje y comprobar la alternativa de copia manual al denegar el portapapeles. Cambiar un precio o el nombre de la obra y verificar que el PDF anterior conserva sus datos. <em>Playwright y prueba de interfaz.</em></li>
+      <li><strong>MVP-06 · Persistencia y regresión.</strong> Reiniciar la instalación Docker de prueba y volver a abrir la obra y su presupuesto. Ejecutar backend, frontend y build, y conservar la cobertura de planos, esquemas, unifilar, actividad y lecciones desde sus puntos de entrada. <em>Suite existente y Playwright con Docker.</em></li>
+      <li><strong>MVP-07 · Piloto con una persona.</strong> Darle a una persona principiante los datos de Casa de Martín y pedirle que prepare el PDF y el mensaje, sin indicarle dónde hacer clic. Registrar si termina y dónde se detiene o pide ayuda. <em>Sesión observada con una persona participante.</em></li>
+    </ol>
+  </section>
+</main>
+</body>
+</html>

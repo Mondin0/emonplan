@@ -17,6 +17,108 @@ try {
   await page.getByRole('button', { name: 'Ingresar' }).click();
   await page.getByRole('heading', { name: 'Resumen' }).waitFor();
 
+  const projectMvp = 'Casa de Martín';
+  const clientMvp = 'Martín Piloto';
+  const cableMvp = 'Cable Piloto';
+  const pilotApi = async name => {
+    const response = await page.request.get(`${base}/api/${name}`);
+    assert.equal(response.status(), 200);
+    return response.json();
+  };
+  assert.deepEqual(await pilotApi('projects'), []);
+  assert.deepEqual(await pilotApi('clients'), []);
+  assert.deepEqual(await pilotApi('materials'), []);
+  await page.setViewportSize({width: 390, height: 844});
+  await lessonButton('Nueva obra').click();
+  await page.getByLabel('Nombre de la obra').fill(projectMvp);
+  await lessonButton('Agregar cliente').click();
+  await page.getByLabel('Nombre del cliente').fill(clientMvp);
+  await lessonButton('Guardar cliente').click();
+  await lessonButton('Guardar obra').click();
+  await page.getByRole('heading', { name: projectMvp, exact: true }).waitFor();
+  await page.getByText(clientMvp, { exact: true }).waitFor();
+  await page.getByText('Pendiente', { exact: true }).waitFor();
+  await page.getByRole('heading', { name: 'Presupuesto', exact: true }).waitFor();
+  const pilotWork = (await pilotApi('projects')).find(row => row.name === projectMvp);
+
+  const pilotLabor = page.getByLabel('Mano de obra (pesos)', { exact: true });
+  await pilotLabor.fill('100,255');
+  await lessonButton('Generar presupuesto').click();
+  assert.match(await pilotLabor.evaluate(input => input.validationMessage), /importe en pesos/);
+  await pilotLabor.fill('100,25');
+  await lessonButton('Generar presupuesto').click();
+  await lessonButton('Compartir presupuesto versión 1').waitFor();
+
+  async function verifyPilotPdf(version, total) {
+    await lessonButton(`Compartir presupuesto versión ${version}`).click();
+    const downloadLink = page.getByRole('link', { name: 'Descargar PDF', exact: true });
+    const href = await downloadLink.getAttribute('href');
+    const id = /^\/api\/quotations\/(\d+)\/pdf$/.exec(href)?.[1];
+    assert.ok(id);
+    const [download] = await Promise.all([
+      page.waitForEvent('download'), downloadLink.click(),
+    ]);
+    assert.equal(download.suggestedFilename(), `presupuesto-${id}.pdf`);
+    const data = readFileSync(await download.path());
+    assert.equal(data.subarray(0, 5).toString(), '%PDF-');
+    const content = execFileSync('pdftotext', ['-', '-'], { input: data, encoding: 'utf8' });
+    assert.ok(content.includes(`versión ${version}`));
+    assert.ok(content.includes(`Proyecto: ${projectMvp}`));
+    assert.ok(content.includes(`Total: $${total}`));
+  }
+
+  await verifyPilotPdf(1, '100,25');
+  await lessonButton('Agregar material').click();
+  await lessonButton('Nuevo material de catálogo').click();
+  await page.getByLabel('Nombre del material').fill(cableMvp);
+  await page.getByLabel('Unidad', { exact: true }).fill('m');
+  await page.getByLabel('Precio por unidad (pesos)').fill('125,00');
+  await page.getByLabel('Proveedor (opcional)').fill('Electricidad Centro');
+  const pilotQuantity = page.getByLabel('Cantidad', { exact: true });
+  await pilotQuantity.fill('0');
+  await lessonButton('Guardar material').click();
+  assert.match(await pilotQuantity.evaluate(input => input.validationMessage), /cantidad mayor a cero/);
+  await pilotQuantity.fill('2');
+  await lessonButton('Guardar material').click();
+  await page.getByText('Electricidad Centro', { exact: true }).waitFor();
+  const pilotMaterial = (await pilotApi('materials')).find(item => item.name === cableMvp);
+  assert.equal(pilotMaterial.supplier, 'Electricidad Centro');
+  assert.equal(pilotMaterial.price_cents, 12500);
+  await lessonButton('Generar presupuesto').click();
+  await verifyPilotPdf(2, '350,25');
+  await page.context().grantPermissions(['clipboard-read', 'clipboard-write'], { origin: base });
+  await lessonButton('Copiar mensaje para WhatsApp').click();
+  await page.getByText('Mensaje copiado. Pegalo en WhatsApp y adjuntá el PDF.', { exact: true }).waitFor();
+  assert.match(await page.evaluate(() => navigator.clipboard.readText()), /Hola, Martín Piloto\..*Casa de Martín/);
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth), 390);
+  await page.setViewportSize({width: 1280, height: 720});
+
+  await lessonButton('Materiales').click();
+  await page.getByRole('row').filter({ hasText: cableMvp }).getByText('Electricidad Centro').waitFor();
+  await lessonButton('Obras').click();
+  await lessonButton('Nueva obra').click();
+  await page.getByLabel('Nombre de la obra').fill('Segunda obra piloto');
+  await page.getByLabel('Cliente existente').selectOption(String(pilotWork.client_id));
+  await lessonButton('Guardar obra').click();
+  await page.getByRole('heading', { name: 'Segunda obra piloto', exact: true }).waitFor();
+  await page.getByText('Todavía no hay presupuestos para esta obra.', { exact: true }).waitFor();
+  assert.equal(await page.getByText(cableMvp, { exact: true }).count(), 0);
+  assert.equal((await pilotApi('clients')).length, 1);
+  await lessonButton('Agregar material').click();
+  await page.getByLabel('Material del catálogo').selectOption(String(pilotMaterial.id));
+  await pilotQuantity.fill('1');
+  await lessonButton('Guardar material').click();
+  await lessonButton(`Editar cantidad de ${cableMvp}`).click();
+  await pilotQuantity.fill('3');
+  await lessonButton('Guardar material').click();
+  await page.getByText(/^3 m ·/).waitFor();
+  await lessonButton(`Quitar ${cableMvp} de la obra`).click();
+  await page.getByText('Podés presupuestar solo la mano de obra y agregar materiales cuando los tengas.').waitFor();
+  await lessonButton('Inicio').click();
+  await page.reload();
+  await lessonButton(projectMvp).click();
+  await verifyPilotPdf(1, '100,25');
+
   await lessonButton('Lecciones').click();
   await lessonButton('Iluminación').press('Enter');
   await page.getByRole('heading', { name: 'Iluminación' }).waitFor();
@@ -310,6 +412,9 @@ try {
   execFileSync('docker', ['compose', '-f', 'compose.yaml', '--env-file', '/dev/null', 'up', '-d', '--wait', '--wait-timeout', '180'], { stdio: 'inherit' });
   base = `http://${execFileSync('docker', ['compose', '-f', 'compose.yaml', '--env-file', '/dev/null', 'port', 'frontend', '8080'], { encoding: 'utf8' }).trim()}`;
   await page.goto(base);
+  await lessonButton('Obras').click();
+  await lessonButton(projectMvp).click();
+  await verifyPilotPdf(2, '350,25');
   await page.getByRole('button', { name: 'Planos', exact: true }).click();
   await select.locator('option').filter({ hasText: 'Proyecto E2E' }).waitFor({ state: 'attached' });
   await select.selectOption(String(project));

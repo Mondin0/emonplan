@@ -22,3 +22,38 @@ select{font:inherit;display:block;width:100%;padding:.65rem;border:1px solid #76
 .lesson-controls { display: flex; flex-wrap: wrap; gap: .5rem; }
 .lesson button[aria-pressed="true"] { background: #214a91; color: white; box-shadow: inset 0 0 0 2px #c7dbff; }
 .lesson [role="status"] { margin-bottom: .25rem; }
+
+.work-panel { max-width: 54rem; }
+.work-panel :is(h3, h4, h5) { margin-block: .25rem .65rem; }
+.work-panel h4 { font-size: 1.1rem; }
+.work-panel h5 { font-size: 1rem; }
+.work-panel :is(p, textarea, dd) { overflow-wrap: anywhere; }
+.work-list { margin: 1rem 0; padding: 0; }
+.work-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: .65rem;
+  padding-block: .75rem;
+  border-block-start: 1px solid #d8e1de;
+}
+.work-list li p { margin: .25rem 0 0; }
+.work-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .65rem; }
+.work-list-heading { justify-content: space-between; }
+.work-panel :is(button, input, select, textarea, .work-download) { min-block-size: 3rem; font-size: 1rem; }
+.work-panel :is(button, .work-download) { background: #086d64; }
+.work-panel button:disabled { opacity: .55; cursor: default; }
+.work-panel button.work-secondary { background: #eef5f2; color: #1c4d45; border: 1px solid #7a9e93; }
+.work-download { display: inline-flex; align-items: center; padding: .65rem 1rem; border-radius: 5px; color: white; font-weight: 600; }
+.work-form { display: grid; gap: .5rem; max-width: 32rem; }
+.work-form[hidden] { display: none; }
+.work-form :is(input, textarea) { border: 1px solid #767676; }
+.work-form textarea { width: 100%; padding: .65rem; border-radius: 4px; font-family: inherit; }
+.work-form textarea:focus-visible { outline: 3px solid #e69f32; outline-offset: 2px; }
+.work-form p { margin: 0; }
+.work-form label:not(:first-child) { margin-top: .4rem; }
+.work-inline-form { margin-block-start: 1.25rem; padding-block-start: 1rem; border-block-start: 1px solid #d8e1de; }
+.work-meta { display: flex; flex-wrap: wrap; gap: .8rem 1.75rem; margin-block: -1rem 1.25rem; }
+.work-meta dt { font-size: .85rem; color: #425e57; }
+.work-meta dd { margin-inline-start: 0; font-weight: 600; }

@@ -140,7 +140,7 @@ var resources = map[string][]string{
 	"projects":          {"client_id", "name", "address", "description", "installation_type", "supply_type", "status"},
 	"boards":            {"project_id", "name"},
 	"circuits":          {"board_id", "identifier", "description", "circuit_type", "power_w", "voltage_v", "protection", "conductor_mm2", "length_m"},
-	"materials":         {"name", "category", "unit", "price_cents"},
+	"materials":         {"name", "category", "unit", "price_cents", "supplier"},
 	"project-materials": {"project_id", "material_id", "quantity"},
 	"activities":        {"project_id", "description", "observation", "occurred_on"},
 }
@@ -363,6 +363,11 @@ func registerQuotations(r chi.Router, db *pgxpool.Pool) {
 
 // validFields rejects blank identifiers and names at the HTTP trust boundary.
 func validFields(body map[string]any) bool {
+	if value, present := body["supplier"]; present {
+		if _, ok := value.(string); !ok {
+			return false
+		}
+	}
 	for _, key := range []string{"name", "identifier", "unit", "protection"} {
 		if value, ok := body[key]; ok {
 			s, ok := value.(string)

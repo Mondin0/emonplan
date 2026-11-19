@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"net/http/httptest"
 	"testing"
 )
@@ -14,6 +15,12 @@ func TestValidFields(t *testing.T) {
 		{map[string]any{"name": "  "}, false},
 		{map[string]any{"identifier": 123}, false},
 		{map[string]any{"description": "Circuito"}, true},
+		{map[string]any{"supplier": "Electricidad Centro"}, true},
+		{map[string]any{"supplier": ""}, true},
+		{map[string]any{"supplier": json.Number("123")}, false},
+		{map[string]any{"supplier": nil}, false},
+		{map[string]any{"supplier": true}, false},
+		{map[string]any{"supplier": map[string]any{}}, false},
 	} {
 		if got := validFields(tc.fields); got != tc.want {
 			t.Errorf("validFields(%v) = %v", tc.fields, got)
