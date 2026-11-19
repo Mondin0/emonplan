@@ -8,7 +8,7 @@ Requiere Docker Engine y Docker Compose v2 reciente (soporte de `!reset`).
 
 Para iniciar la aplicación desde la raíz del proyecto, ejecutá `./levantar.sh`. Para apagarla y borrar su instalación local desde cero, ejecutá `./limpiar.sh` y escribí `BORRAR` cuando lo solicite. Esto elimina todos los datos y las credenciales de EmonPlan; el código del proyecto se conserva.
 
-Con la aplicación iniciada, `./cargar-ejemplos.sh` agrega un cliente, proyecto, tablero, circuitos, material, cómputo, presupuesto y actividad ficticios. Los importes y valores eléctricos son solo para pruebas. La carga es opcional y se ejecuta una sola vez por base de datos: repetirla no duplica ni restaura registros que se hayan editado o borrado. Para volver a empezar desde cero se puede usar `./limpiar.sh`, que también borra todos los datos reales.
+Con la aplicación iniciada, `./cargar-ejemplos.sh` agrega datos ficticios para la demo. Abrí **Centro Cultural La Estación** desde Proyectos para ver un unifilar con dos tableros y seis circuitos. La misma obra tiene materiales, cómputo, un presupuesto con PDF y actividades. Los importes y valores eléctricos son solo para pruebas. Cada versión de los ejemplos se carga una vez por base de datos. Repetir la carga aplica las versiones pendientes y conserva las ediciones y bajas previas.
 
 ```sh
 make setup
@@ -27,7 +27,7 @@ Ejecutá estos comandos desde la raíz del proyecto:
 | Comando | Qué hace |
 | --- | --- |
 | `./levantar.sh` | Crea `.env` si falta, construye e inicia los servicios y muestra su estado. |
-| `./cargar-ejemplos.sh` | Carga datos ficticios una sola vez en la base de datos iniciada. |
+| `./cargar-ejemplos.sh` | Carga las versiones pendientes de los datos ficticios en la base iniciada. |
 | `./limpiar.sh` | Pide confirmar con `BORRAR` y elimina contenedores, imágenes locales, base de datos y `.env`. |
 | `make setup` | Crea `.env` con credenciales aleatorias si todavía no existe. |
 | `make up` | Construye e inicia los servicios en segundo plano; requiere `.env`. |

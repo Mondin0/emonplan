@@ -15,6 +15,6 @@ test:
 	cd frontend && npm test -- --run && npm run build
 test-integration:
 	@test -n "$$TEST_DATABASE_URL" || (echo 'Set TEST_DATABASE_URL to a disposable PostgreSQL test database' >&2; exit 1)
-	cd backend && go test ./... -run TestPlanImagePostgres -count=1 -v
+	cd backend && go test ./... -run 'TestPlanImagePostgres|TestUnifilarPostgres' -count=1 -v
 test-e2e:
 	sh scripts/test-e2e.sh

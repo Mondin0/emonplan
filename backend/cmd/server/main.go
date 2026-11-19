@@ -116,6 +116,8 @@ func main() {
 		})
 		registerResources(r, db)
 		registerPlanImages(r, planImageDB{db})
+		registerUnifilar(r, unifilarDB{db})
+		registerSchemes(r, db)
 		registerQuotations(r, db)
 		r.Get("/api/me", func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "application/json")
