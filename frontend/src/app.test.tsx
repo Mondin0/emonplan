@@ -251,3 +251,56 @@ it('carga pesos y muestra la obra, versión y total emitidos', async () => {
  expect(within(row).getByText(/\$\s*17\.500,25/)).toBeTruthy();
  expect(within(row).getByRole('link',{name:'PDF'}).getAttribute('href')).toBe('/api/quotations/3/pdf');
 });
+
+it('explora seis lecciones después de iniciar sesión y reinicia el ejemplo al salir',async()=>{
+ const fetcher=vi.fn().mockResolvedValueOnce({ok:false,status:401,text:async()=>''})
+  .mockResolvedValueOnce({ok:true,status:204})
+  .mockImplementation(async()=>({ok:true,status:200,json:async()=>[]}));
+ vi.stubGlobal('fetch',fetcher);
+ const user=userEvent.setup();
+ render(<App/>);
+ const button=(name:string)=>screen.getByRole('button',{name});
+ expect(screen.queryByRole('button',{name:'Lecciones'})).toBeNull();
+ await user.type(screen.getByLabelText('Usuario'),'test@example.com');
+ await user.type(screen.getByLabelText('Contraseña'),'clave-segura');
+ await user.click(button('Ingresar'));
+ await user.click(await screen.findByRole('button',{name:'Lecciones'}));
+ const titles=['Fase, neutro y tierra','Tensión y corriente','Protecciones','Iluminación','Tomacorrientes','Disparo del diferencial'];
+ for(const title of titles){
+  await user.click(button(title));
+  expect(screen.getByRole('heading',{name:title})).toBeTruthy();
+  expect(screen.getByRole('img',{name:title})).toBeTruthy();
+  expect(screen.getByRole('group',{name:'Pregunta de repaso'})).toBeTruthy();
+  await user.click(button('Volver a lecciones'));
+ }
+ await user.click(button('Iluminación'));
+ button('Interruptor').focus();
+ await user.keyboard('{Enter}');
+ expect(button('Interruptor').getAttribute('aria-pressed')).toBe('true');
+ expect(button('Abierto').getAttribute('aria-pressed')).toBe('true');
+ const open=screen.getByRole('img',{name:'Iluminación'}).innerHTML;
+ await user.click(button('Cerrado'));
+ expect(button('Cerrado').getAttribute('aria-pressed')).toBe('true');
+ expect(screen.getByRole('img',{name:'Iluminación'}).innerHTML).not.toBe(open);
+ const answers=within(screen.getByRole('group',{name:'Pregunta de repaso'})).getAllByRole('button');
+ await user.click(answers[1]);
+ expect(screen.getByRole('status',{name:'Devolución'}).textContent).toContain('Revisá tu respuesta.');
+ await user.click(answers[0]);
+ expect(screen.getByRole('status',{name:'Devolución'}).textContent).toContain('Correcto.');
+
+ await user.click(button('Siguiente lección'));
+ expect(screen.getByRole('status',{name:'Devolución'}).textContent).toBe('');
+ await user.click(button('Volver a lecciones'));
+ await user.click(button('Iluminación'));
+ expect(button('Abierto').getAttribute('aria-pressed')).toBe('true');
+ await user.click(button('Volver a lecciones'));
+ await user.click(button('Disparo del diferencial'));
+ expect(screen.queryByRole('button',{name:'Siguiente lección'})).toBeNull();
+ const normal=screen.getByRole('img',{name:'Disparo del diferencial'}).innerHTML;
+ await user.click(button('Fuga hipotética'));
+ expect(screen.getByRole('img',{name:'Disparo del diferencial'}).innerHTML).not.toBe(normal);
+ await user.click(button('Normal'));
+ expect(screen.getByRole('img',{name:'Disparo del diferencial'}).innerHTML).toBe(normal);
+ await user.click(button('Clientes'));
+ expect(screen.getByRole('heading',{name:'Clientes',level:2})).toBeTruthy();
+});

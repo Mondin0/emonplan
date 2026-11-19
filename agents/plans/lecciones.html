@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="es-AR">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lecciones de electricidad monofásica · EmonPlan</title>
+<style>
+:root{font:1rem/1.6 system-ui,sans-serif;color:#18271f;background:#edf2ed}
+main{max-width:54rem;margin:auto;padding:clamp(1rem,4vw,3rem)}
+section{background:white;border:1px solid #c9d7cc;border-radius:1rem;padding:1.25rem;margin:1rem 0}
+h1,h2,h3{line-height:1.2} h1{font-size:clamp(2rem,5vw,3rem);margin:.35em 0}
+strong,summary{color:#164b35} summary{cursor:pointer} a{color:#164b35}
+:focus-visible{outline:3px solid #255bcc;outline-offset:3px}
+figure{margin:1rem 0} svg{display:block;width:100%;max-width:28rem;height:auto;background:#edf2ed;border-radius:.6rem} figcaption{margin-top:.5rem}
+li+li{margin-top:.4rem} details{margin:.6rem 0}
+</style>
+<main>
+<header>
+<p>EmonPlan · Ficha para aprobación</p>
+<h1>Lecciones de electricidad monofásica</h1>
+<p>Un recorrido de repaso para instaladores que empieza por los fundamentos y termina en casos domiciliarios. Cada lección tiene una explicación corta, un diagrama explorable y una pregunta con devolución.</p>
+</header>
+<section>
+<h2>Cómo se usa</h2>
+<p>Hoy, para ver un esquema se entra desde un proyecto. Con la nueva sección, podés abrir un ejemplo de iluminación apenas iniciás sesión, incluso si tu cuenta todavía no tiene proyectos.</p>
+<ol>
+<li>Iniciá sesión y elegí <strong>Lecciones</strong> en la navegación principal.</li>
+<li>Abrí un tema del catálogo en el orden sugerido o elegí directamente el que querés repasar.</li>
+<li>Elegí un componente por su nombre. El diagrama lo destaca y se muestra qué función cumple.</li>
+<li>En Iluminación y Disparo del diferencial, alterná entre dos estados y observá qué cambia en el esquema y en la explicación.</li>
+<li>Respondé la pregunta de repaso y leé la explicación. Podés seguir a la lección siguiente o volver al catálogo.</li>
+<li>Entrá a <strong>Clientes</strong> o <strong>Proyectos</strong> desde la navegación principal cuando quieras retomar el trabajo.</li>
+</ol>
+</section>
+<section>
+<h2>Ejemplo de una lección</h2>
+<h3>Iluminación con mando simple</h3>
+<p>El esquema funcional muestra cómo el interruptor abre o cierra el camino de corriente de una lámpara.</p>
+<figure>
+<svg viewBox="0 0 400 135" role="img" aria-labelledby="titulo-esquema">
+<title id="titulo-esquema">Esquema de iluminación con fase, interruptor abierto, lámpara y neutro</title>
+<path d="M44 45H129m58 0h100v22m0 36v13H44M129 45l48-20" fill="none" stroke="#164b35" stroke-width="3"/>
+<circle cx="129" cy="45" r="4" fill="#164b35"/><circle cx="187" cy="45" r="4" fill="#164b35"/>
+<circle cx="287" cy="85" r="18" fill="none" stroke="#164b35" stroke-width="3"/>
+<path d="m275 73 24 24m0-24-24 24" stroke="#164b35" stroke-width="2"/>
+<g fill="#18271f" font-size="15"><text x="14" y="50">L</text><text x="14" y="121">N</text><text x="117" y="71">Interruptor</text><text x="319" y="90">Lámpara</text></g>
+</svg>
+<figcaption>Esquema funcional simplificado. L identifica la fase y N el neutro.</figcaption>
+</figure>
+<details><summary>Interruptor</summary><p>En la posición abierta interrumpe el camino de corriente de la lámpara.</p></details>
+<details><summary>Lámpara</summary><p>Es la carga. Cuando el interruptor está cerrado y hay alimentación, circula corriente por ella.</p></details>
+<details><summary>Comparar con el interruptor cerrado</summary><p>En este estado, el contacto completa el camino entre la fase y la lámpara. Con alimentación circula corriente por la rama. En la aplicación, al elegir «Cerrado», cambia el dibujo del contacto y se destaca ese camino.</p></details>
+<p><strong>Pregunta de repaso</strong> ¿Qué ocurre con la corriente por la lámpara al abrir el interruptor en este esquema?</p>
+<details><summary>Ver devolución de ejemplo</summary><p>Deja de circular por la lámpara porque se abre el circuito. Que una lámpara esté apagada no permite determinar si una instalación es segura para intervenir.</p></details>
+</section>
+<section>
+<h2>Catálogo inicial</h2>
+<ol>
+<li><strong>Fase, neutro y tierra.</strong> Distinguir la función de cada conductor y reconocer el conductor de protección.</li>
+<li><strong>Tensión y corriente.</strong> Interpretar la diferencia de potencial y la circulación de corriente con un circuito abierto y cerrado.</li>
+<li><strong>Protecciones.</strong> Distinguir sobrecorriente y corriente diferencial residual, y la función de las protecciones correspondientes.</li>
+<li><strong>Iluminación.</strong> Comparar interruptor abierto y cerrado para seguir el camino de corriente en un circuito de mando simple.</li>
+<li><strong>Tomacorrientes.</strong> Reconocer la conexión en paralelo de las cargas y la función del contacto de protección.</li>
+<li><strong>Disparo del diferencial.</strong> Comparar funcionamiento normal y fuga hipotética para interpretar qué detecta el diferencial.</li>
+</ol>
+</section>
+<section>
+<h2>Implementación y alcance</h2>
+<p>Lecciones se integra en la navegación autenticada de EmonPlan. El catálogo, los diagramas y las preguntas se incluyen en el frontend. La selección de componentes, el estado del esquema y las respuestas duran mientras se recorre la lección. Iluminación y Disparo del diferencial muestran dos estados didácticos predefinidos cada una, con cambios en el diagrama y en una explicación textual. Los ejemplos son esquemas didácticos de lectura y repaso. El contenido cubre principios eléctricos y casos conceptuales. Se excluyen los procedimientos de intervención, el dimensionamiento y la verificación normativa.</p>
+</section>
+<section>
+<h2>Criterios de aceptación</h2>
+<ol>
+<li><strong>L01 · Acceso.</strong> Abrir EmonPlan sin sesión. Iniciar sesión con una cuenta de prueba. Lecciones aparece en la navegación autenticada y abre un catálogo de seis temas. Prueba de frontend y Playwright.</li>
+<li><strong>L02 · Contenido.</strong> Abrir cada tema en el catálogo. Cada uno muestra su explicación, diagrama, componentes con descripción y una pregunta con devoluciones. Prueba de frontend y revisión del temario.</li>
+<li><strong>L03 · Exploración.</strong> En Iluminación, seleccionar Interruptor con Tab y Enter y Lámpara con el puntero. Cambian el destaque y la descripción. Se puede entender el papel de cada elemento por su nombre y el texto. Prueba de frontend y Playwright.</li>
+<li><strong>L04 · Repaso.</strong> En Iluminación, elegir una respuesta incorrecta y después la correcta. Cada opción muestra su explicación. Abrir la siguiente lección y verificar que la respuesta anterior no aparezca. Prueba de frontend.</li>
+<li><strong>L05 · Navegación.</strong> Abrir el último tema del catálogo y volver al listado. El último tema permite regresar al catálogo y no ofrece avanzar fuera del recorrido. Prueba de frontend.</li>
+<li><strong>L06 · Regresión.</strong> En Docker, con cliente y proyecto de prueba, entrar a Lecciones y luego abrir Clientes, Proyectos y el unifilar del proyecto existente. Los datos y las acciones del flujo siguen disponibles. Ejecutar las suites de backend y frontend, el build y el flujo Playwright sobre Docker.</li>
+<li><strong>L07 · Comparación de estados.</strong> En Iluminación, alternar con el teclado entre Abierto y Cerrado y comprobar el cambio visible del contacto y su explicación. En Disparo del diferencial, pasar de Normal a Fuga hipotética y volver a Normal. El esquema muestra y describe el desequilibrio en el caso de fuga. Al reabrir el tema se muestra su estado inicial. Prueba de frontend y Playwright.</li>
+</ol>
+</section>
+</main>

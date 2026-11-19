@@ -9,10 +9,37 @@ try {
   const page = await browser.newPage();
   await page.addInitScript(() => { window.__prints = 0; window.print = () => { window.__prints += 1; }; });
   await page.goto(base);
+  const lessonButton = name => page.getByRole('button', { name, exact: true });
+  const diagram = name => page.getByRole('img', { name, exact: true });
+  assert.equal(await lessonButton('Lecciones').count(), 0);
   await page.getByLabel('Usuario').fill(process.env.OWNER_EMAIL);
   await page.getByLabel('Contraseña').fill(process.env.OWNER_PASSWORD);
   await page.getByRole('button', { name: 'Ingresar' }).click();
   await page.getByRole('heading', { name: 'Resumen' }).waitFor();
+
+  await lessonButton('Lecciones').click();
+  await lessonButton('Iluminación').press('Enter');
+  await page.getByRole('heading', { name: 'Iluminación' }).waitFor();
+  await page.keyboard.press('Tab');
+  assert.equal(await lessonButton('Interruptor').evaluate(element => element === document.activeElement), true);
+  await page.keyboard.press('Enter');
+  assert.equal(await lessonButton('Interruptor').getAttribute('aria-pressed'), 'true');
+  await lessonButton('Lámpara').click();
+  assert.equal(await lessonButton('Lámpara').getAttribute('aria-pressed'), 'true');
+  const openDiagram = await diagram('Iluminación').innerHTML();
+  await lessonButton('Cerrado').press('Enter');
+  assert.notEqual(await diagram('Iluminación').innerHTML(), openDiagram);
+  await page.getByText('El contacto completa el lazo.', { exact: false }).waitFor();
+  await lessonButton('Abierto').press('Enter');
+  assert.equal(await diagram('Iluminación').innerHTML(), openDiagram);
+  await lessonButton('Volver a lecciones').click();
+  await lessonButton('Disparo del diferencial').click();
+  const normalDiagram = await diagram('Disparo del diferencial').innerHTML();
+  await lessonButton('Fuga hipotética').press('Enter');
+  assert.notEqual(await diagram('Disparo del diferencial').innerHTML(), normalDiagram);
+  await page.getByText('Antes del disparo, parte de la corriente', { exact: false }).waitFor();
+  await lessonButton('Normal').press('Enter');
+  assert.equal(await diagram('Disparo del diferencial').innerHTML(), normalDiagram);
 
   // Datos de ejemplo (U1-U6): carga repetible dentro de la base del entorno aislado.
   const sql = input => execFileSync('docker', ['compose', '-f', 'compose.yaml', '--env-file', '/dev/null', 'exec', '-T', 'db',
@@ -60,6 +87,12 @@ try {
   const project = await create('Proyectos', { Nombre: 'Proyecto E2E', 'ID de cliente': 'Cliente E2E' });
   const boardE2E = await create('Tableros', { 'ID de proyecto': 'Proyecto E2E', Nombre: 'Tablero E2E' });
   const circuitE2E = await create('Circuitos', { 'ID de tablero': 'Tablero E2E', Identificador: 'C1', 'Potencia (W)': '100', 'Tensión (V)': '220', Protección: '10 A', 'Sección (mm²)': '2.5', 'Longitud (m)': '5' });
+  await lessonButton('Lecciones').click();
+  await lessonButton('Clientes').click();
+  await page.getByRole('cell', { name: 'Cliente E2E', exact: true }).waitFor();
+  await lessonButton('Proyectos').click();
+  await page.getByRole('cell', { name: 'Proyecto E2E', exact: true }).waitFor();
+
   // Unifilar por obra (U1-U5).
   await page.getByRole('button', { name: 'Proyectos', exact: true }).click();
   // U1: el menú general ya no tiene el acceso unificado.

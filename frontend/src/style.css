@@ -4,3 +4,21 @@ select{font:inherit;display:block;width:100%;padding:.65rem;border:1px solid #76
 .plan-form{display:grid;gap:.5rem;margin-top:1.5rem;max-width:36rem}.plan-form p{margin:0;font-weight:normal}.plan-form button{justify-self:start}.plan-image{display:block;max-width:100%;height:auto}figure{margin:1.5rem 0}
 
 .unifilar-flow{height:480px;margin-top:1rem;border:1px solid #d8e1de;border-radius:6px}.unifilar-flow button{border:1px solid #b7c5c1}.unifilar-node{padding:.5rem .9rem;border-radius:6px;font-size:.85rem;white-space:nowrap}.unifilar-board{background:#087c72;color:white;font-weight:600}.unifilar-circuit{background:white;border:1px solid #b7c5c1}.unifilar-empty{background:#f2f5f4;border:1px dashed #767676;color:#66807a}.unifilar-edge{stroke:#5c7a73;stroke-width:2;fill:none}.visually-hidden:where(:not(:focus-within,:active)){position:absolute!important;clip-path:inset(50%)!important;overflow:hidden!important;width:1px!important;height:1px!important;margin:-1px!important;padding:0!important;border:0!important;white-space:nowrap!important}
+
+.lesson { max-width: 56rem; }
+.lesson-catalog { display: grid; gap: .65rem; padding-inline-start: 1.7rem; }
+.lesson figure { margin: 1rem 0; }
+.lesson-diagram { display: block; width: 100%; max-width: 42rem; background: #f2f7f5; border-radius: .6rem; color: #233a34; }
+.lesson-diagram :is(path, rect, ellipse, circle) { fill: none; stroke: currentColor; stroke-width: 2.5; }
+.lesson-diagram text { fill: currentColor; font-size: 16px; }
+.lesson-diagram .lesson-current { color: #176446; }
+.lesson-diagram .lesson-current path { stroke-width: 3.5; }
+.lesson-diagram .lesson-fault { color: #982d20; }
+.lesson-diagram .lesson-part-selected { color: #1748ac; font-weight: 700; }
+.lesson-diagram .lesson-part-selected :is(path, rect, ellipse, circle) { stroke-width: 4.5; }
+.lesson figcaption { margin-top: .4rem; }
+.lesson fieldset { min-inline-size: 0; margin: 1rem 0; border: 1px solid #a9bcb4; border-radius: .6rem; }
+.lesson legend { font-weight: 700; }
+.lesson-controls { display: flex; flex-wrap: wrap; gap: .5rem; }
+.lesson button[aria-pressed="true"] { background: #214a91; color: white; box-shadow: inset 0 0 0 2px #c7dbff; }
+.lesson [role="status"] { margin-bottom: .25rem; }
