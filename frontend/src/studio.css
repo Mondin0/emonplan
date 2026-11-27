@@ -1,0 +1,215 @@
+.studio { container-type: inline-size; }
+
+.studio-project {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: .75rem 1rem;
+}
+
+.studio-field { display: grid; gap: .35rem; }
+.studio-field :is(input, select) { min-block-size: 44px; }
+.studio-save { grid-column: 1 / -1; margin: 0; color: #425b59; }
+.studio-save:empty { display: none; }
+
+.studio-tools, .studio-tools > div { display: flex; flex-wrap: wrap; gap: .5rem; }
+.studio-tools { justify-content: space-between; margin-block: .75rem; }
+.studio-tools button { min-block-size: 44px; background: #f3f7f6; color: #18323b; border: 1px solid #cbd9d5; }
+.studio-tools button[aria-disabled='true'] { color: #536d75; cursor: default; }
+
+.studio-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 15rem;
+  gap: 1rem;
+  align-items: start;
+}
+
+.studio-board {
+  min-inline-size: 0;
+  background: #132c35;
+  color: #e9f4f0;
+  border: 1px solid #254650;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.studio-board-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .25rem 1rem;
+  margin-block-end: .85rem;
+}
+
+.studio-board-heading span { color: #bfd4d4; font-size: .9rem; }
+.studio :is(h3, .studio-feedback p) { margin: 0; }
+
+.studio-cabinet {
+  overflow-x: auto;
+  scrollbar-color: #849f9f #203f49;
+  border-radius: 6px;
+  background: #a9b8b6;
+  padding: 6px;
+}
+
+.studio-rail {
+  --slot-width: 34px;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(var(--slot-width), 1fr));
+  grid-template-rows: auto 8rem;
+  gap: .45rem 2px;
+  position: relative;
+  isolation: isolate;
+  min-inline-size: calc(12 * var(--slot-width) + 22px + 1rem);
+  padding: .5rem;
+  background: #263e49;
+  border-radius: 4px;
+}
+
+.studio-rail::before {
+  content: '';
+  grid-area: 2 / 1 / 3 / -1;
+  align-self: center;
+  block-size: 2.5rem;
+  background: linear-gradient(#d7e2e0 0 11%, #788f91 11% 20%, #a9bbbc 20% 80%, #788f91 80% 89%, #d7e2e0 89%);
+  border-radius: 2px;
+  box-shadow: 0 3px 4px #142733;
+  z-index: -1;
+}
+
+.studio-position {
+  grid-row: 1;
+  padding: 0;
+  min-block-size: 44px;
+  border: 1px solid #85c1b8;
+  background: #23635c;
+  font-variant-numeric: tabular-nums;
+}
+
+.studio-position[aria-disabled='true'] {
+  cursor: default;
+  background: #1a3039;
+  border-color: #536d75;
+}
+
+.studio-empty, .studio-part { grid-row: 2; }
+.studio-empty { border: 1px dashed #8fa6ae; border-radius: 4px; }
+
+.studio-part {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  justify-items: center;
+  align-items: end;
+  gap: 2px;
+  min-inline-size: 0;
+  padding: 0 1px 3px;
+  background: #e7eeed;
+  color: #1d353e;
+  font-size: .73rem;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+.studio-part svg { inline-size: 100%; block-size: 100%; }
+
+.studio-wiring {
+  /* Terminal rows and wire coordinates share a 280px drawing area. */
+  grid-template-rows: 44px 64px 152px 64px;
+  gap: 0;
+  padding-inline: 1.25rem;
+}
+.studio-wiring .studio-position { margin-inline: 1px; }
+.studio-wiring::before { grid-row: 3; }
+.studio-wiring :is(.studio-empty, .studio-part) { grid-row: 3; margin-inline: 1px; }
+.studio-wires {
+  grid-area: 2 / 1 / 5 / -1;
+  align-self: stretch;
+  inline-size: 100%;
+  block-size: 280px;
+  overflow: visible;
+  pointer-events: none;
+}
+.studio-wire path { fill: none; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+.studio-wire-target { pointer-events: stroke; cursor: pointer; }
+.studio-terminal {
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  align-self: center;
+  block-size: 44px;
+  min-inline-size: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #18323b;
+}
+.studio-terminal span {
+  display: grid;
+  place-items: center;
+  min-inline-size: 24px;
+  min-block-size: 24px;
+  padding-inline: .2rem;
+  background: #e7eeed;
+  border: 1px solid #78979c;
+  border-radius: 50%;
+  font-size: .72rem;
+  font-weight: 700;
+}
+.studio .studio-terminal[aria-pressed='true'] { background: transparent; box-shadow: none; }
+.studio-terminal[aria-pressed='true'] span { background: #ffe2a8; outline: 2px solid #e69f32; }
+
+.studio-feedback {
+  min-block-size: 2.1rem;
+  padding-block-start: .75rem;
+  color: #d5e6e1;
+}
+
+.studio :is(.studio-catalog, .studio-inspector) { padding: 1rem; margin: 0; }
+.studio :is(.studio-catalog, .studio-inspector) ul { list-style: none; margin: .75rem 0 0; padding: 0; display: grid; gap: .5rem; }
+
+.studio :is(.studio-catalog, .studio-inspector) li button {
+  align-items: center;
+  gap: .5rem;
+  min-block-size: 44px;
+  inline-size: 100%;
+  padding: .45rem .55rem;
+  background: #f3f7f6;
+  border: 1px solid #cbd9d5;
+  color: #18323b;
+  text-align: start;
+}
+
+.studio-catalog li button { display: grid; grid-template-columns: 2.5rem minmax(0, 1fr); }
+.studio-catalog button svg { inline-size: 100%; block-size: 2.6rem; }
+.studio-catalog small { display: block; color: #425b59; }
+.studio-materials table { inline-size: 100%; margin-block-start: .75rem; border-collapse: collapse; }
+.studio-materials caption { font-weight: 700; text-align: start; }
+.studio-materials :is(th, td) { padding: .35rem .2rem; border-block-end: 1px solid #cbd9d5; text-align: start; white-space: normal; overflow-wrap: anywhere; }
+.studio-materials :is(th, td):last-child { text-align: end; }
+.studio-materials small { display: block; font-weight: 400; color: #425b59; }
+.studio-wire-fields { display: grid; gap: .75rem; margin-block-start: .75rem; }
+.studio-wire-fields input { min-inline-size: 0; }
+.studio-section-error:not(:empty) { margin-block-start: .5rem; color: #792f25; }
+.studio-remove {
+  inline-size: 100%;
+  min-block-size: 44px;
+  border: 1px solid #cd9a8f;
+  background: #fff1ec;
+  color: #792f25;
+}
+.studio-catalog > .studio-remove { margin-block-start: .75rem; }
+.studio [aria-pressed='true'] { background: #d2eee2; box-shadow: inset 0 0 0 2px #1b6b5a; }
+.studio :is(button, .studio-cabinet):focus-visible { outline: 3px solid #e69f32; outline-offset: -3px; }
+
+@container (max-width: 48rem) {
+  .studio-workspace { grid-template-columns: minmax(0, 1fr); }
+  .studio-catalog ul { grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); }
+}
+
+@container (max-width: 27rem) {
+  .studio-project { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (pointer: coarse) {
+  .studio-rail { --slot-width: 44px; }
+}

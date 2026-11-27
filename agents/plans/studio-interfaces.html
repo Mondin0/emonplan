@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Studio · Tres propuestas de editor</title>
+<style>
+* { box-sizing: border-box; }
+body { margin: 0; color: #192f3b; background: #f0f4f3; font: 1rem/1.5 system-ui, sans-serif; }
+main { max-inline-size: 86rem; margin-inline: auto; padding: clamp(1rem, 4vw, 3.25rem); }
+header { border-block-end: 1px solid #bccdca; padding-block-end: 1.6rem; }
+h1 { font-size: clamp(2rem, 5vw, 3.5rem); letter-spacing: -.055em; line-height: 1.05; margin: 0; }
+h2 { letter-spacing: -.03em; margin: 0; font-size: 1.65rem; }
+h3 { font-size: .94rem; margin: 0 0 .8rem; }
+p { margin: .4rem 0 0; }
+header p, .description { color: #435963; }
+nav, .toolbar, .project, .project > div, .canvas-head, .canvas-foot, .modes, .sample-switch { display:flex; gap:.55rem; flex-wrap:wrap; align-items:center; }
+nav { margin-block-start: 1rem; }
+a, summary, button { color: #075f59; }
+a { padding: .4rem .7rem; border: 1px solid #aac5bf; border-radius: .5rem; background: white; text-underline-offset: .2em; }
+:focus-visible { outline: 3px solid #0c7468; outline-offset: 3px; }
+.option { margin-block-start: 2.3rem; scroll-margin-block-start: 1rem; }
+.editor { margin-block-start:.95rem; border: 1px solid #b9cbca; border-radius: .85rem; background: white; box-shadow: 0 12px 26px #203c4310; font-size:.85rem; }
+.project { justify-content:space-between; padding: .85rem 1rem; background:#142f3b; color:white; border-radius:.79rem .79rem 0 0; }
+.project strong { letter-spacing:.13em; color:#8de0cd; }
+.project-name { border-inline-start:1px solid #64808a; padding-inline-start:.7rem; }
+.project-meta { color:#e0ecee; }
+.saved { color:#b2eadc; font-size:.76rem; }
+.toolbar { padding:.55rem .8rem; border-block-end:1px solid #d6e2df; }
+.control, .modes button { display:inline-block; border:1px solid #c8d8d5; border-radius:.45rem; padding:.35rem .6rem; background:white; color:inherit; font:inherit; }
+.active, .modes button[aria-pressed="true"] { background:#d8f4ec; border-color:#82bab0; color:#0c5951; font-weight:700; }
+.muted { color:#586e78; }
+.danger { color:#933b30; }
+.sides, .bottom, .mode-body { display:grid; gap:.65rem; padding:.65rem; align-items:start; }
+.sides { grid-template-columns: minmax(9rem, 1fr) minmax(0, 4fr) minmax(11rem, 1.15fr); }
+.bottom { grid-template-columns: minmax(0, 4.8fr) minmax(11rem, 1.2fr); }
+.bottom > .catalog { grid-column:1 / -1; }
+.bottom ul { grid-template-columns:repeat(auto-fit,minmax(8rem,1fr)); }
+.mode-body { grid-template-columns:minmax(0, 4.8fr) minmax(12rem, 1.2fr); }
+.modes { padding:.6rem .8rem 0; }
+.modes button, summary { cursor:pointer; }
+.canvas { min-inline-size:0; display:grid; border-radius:.55rem; background-color:#17313e; background-image:radial-gradient(#426373 1px, transparent 1px); background-size:16px 16px; color:#e4eff0; }
+.canvas-head,.canvas-foot { justify-content:space-between; padding:.65rem .8rem; background:#122b37; }
+.canvas-head { border-radius:.55rem .55rem 0 0; }
+.canvas-foot { border-radius:0 0 .55rem .55rem; color:#b5e8fb; }
+.canvas svg { display:block; inline-size:100%; max-inline-size:46rem; margin-inline:auto; padding:.4rem; }
+.catalog,.inspect,details { border:1px solid #d7e2e0; border-radius:.55rem; padding:.75rem; background:#f7faf9; }
+ul,dl { margin:0; }
+.catalog ul { display:grid; gap:.4rem; list-style:none; padding:0; }
+.catalog li { display:flex; gap:.48rem; align-items:center; background:white; border:1px solid #dae5e3; border-radius:.38rem; padding:.45rem; }
+.catalog i { inline-size:1.25rem; block-size:1.72rem; flex:none; border:1px solid #99adaa; border-block-start:4px solid #287875; border-radius:.19rem; background:linear-gradient(#eef3f2 55%, #52656e 56% 77%, #e3ebea 78%); }
+.catalog .rcd { border-block-start-color:#284259; }
+.catalog .neutral { border-block-start-color:#3088bd; }
+.catalog .earth { border-block-start-color:#61994d; }
+small { display:block; color:#435963; }
+.selection { color:#175877; font-weight:700; }
+.inspect dl { margin-block:.65rem; display:grid; gap:.24rem; }
+dt { color:#435963; }
+dd { margin:0; }
+.inspect dd { background:white; border:1px solid #d7e2e0; border-radius:.32rem; padding:.25rem .4rem; }
+.inspect i { display:inline-block; inline-size:.62rem; block-size:.62rem; border-radius:50%; background:#297db5; }
+details { margin-block-start:.5rem; }
+summary { font-weight:700; }
+.materials { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:.4rem .5rem; margin-block-start:.7rem; }
+.materials dd { text-align:end; }
+footer { margin-block:1.7rem 0; }
+@media (max-width: 58rem) {
+  .sides,.bottom,.mode-body { grid-template-columns:minmax(0,1fr); }
+  .catalog ul { grid-template-columns:repeat(auto-fit,minmax(8rem,1fr)); }
+}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <h1>Studio · Tres propuestas de editor</h1>
+  <p>El mismo tablero de 12 módulos en tres editores de escritorio. La selección muestra dónde se editarían el color y la sección del cable.</p>
+  <nav aria-label="Propuestas"><a href="#a">A · Paneles laterales</a><a href="#b">B · Catálogo inferior</a><a href="#c">C · Editor por modos</a></nav>
+</header>
+<section id="a" aria-labelledby="titulo-a" class="option">
+      <h2 id="titulo-a">A · Paneles laterales</h2><p class="description">Catálogo a la izquierda y propiedades a la derecha. Montaje, tablero y tramo seleccionado quedan a la vista.</p>
+      <div class="editor">
+        <div class="project"><div><strong>STUDIO</strong><span class="project-name">Tablero del taller ✎</span></div><div class="project-meta"><span>Monofásico ▾</span><span class="saved">✓ Guardado en este navegador</span></div></div>
+        <div class="toolbar"><span class="control">↶ Deshacer</span><span class="control muted">↷ Rehacer</span><span class="control">Montar</span><span class="control active">Conectar</span></div>
+        <div class="sides"><div class="catalog"><h3>Catálogo</h3><ul><li><i class="breaker" aria-hidden="true"></i><span><b>Térmica</b><small>2 módulos</small></span></li><li><i class="rcd" aria-hidden="true"></i><span><b>Diferencial</b><small>2 módulos</small></span></li><li><i class="neutral" aria-hidden="true"></i><span><b>Bornera N</b><small>1 módulo</small></span></li><li><i class="earth" aria-hidden="true"></i><span><b>Bornera PE</b><small>1 módulo</small></span></li></ul></div><div class="canvas">
+      <div class="canvas-head"><strong>Gabinete DIN</strong><span>6 de 12 módulos ocupados</span></div>
+      <svg viewBox="0 0 616 340" role="img" aria-labelledby="tablero-a" xmlns="http://www.w3.org/2000/svg">
+      <title id="tablero-a">Gabinete de 12 módulos DIN, con seis ocupados, seis libres y dos tramos dibujados</title>
+      <defs>
+        <linearGradient id="box-a" x2="0" y2="1"><stop stop-color="#f3f7f7"/><stop offset="1" stop-color="#bccbd0"/></linearGradient>
+        <linearGradient id="rail-a" x2="0" y2="1"><stop stop-color="#829399"/><stop offset=".16" stop-color="#e2eaeb"/><stop offset=".83" stop-color="#a9b9be"/><stop offset="1" stop-color="#657b85"/></linearGradient>
+        <linearGradient id="plastic-a" x2="0" y2="1"><stop stop-color="#eaf1f0"/><stop offset="1" stop-color="#c4d2d2"/></linearGradient>
+      </defs>
+      <rect x="16" y="22" width="584" height="300" rx="21" fill="url(#box-a)" stroke="#8c9fa6"/>
+      <rect x="29" y="36" width="558" height="272" rx="14" fill="#536c78" stroke="#e8eff0" stroke-width="3"/>
+      <rect x="44" y="48" width="528" height="248" rx="9" fill="#253d4a"/>
+      <path d="M60 67h494M60 274h494" stroke="#3b5360" stroke-width="10" stroke-dasharray="6 4"/>
+      <rect x="53" y="150" width="510" height="55" rx="2" fill="url(#rail-a)" stroke="#b8c9cc"/>
+      <path d="M54 157h508m-508 41h508" stroke="#f2f6f4" opacity=".7"/>
+      <g fill="#cbd9dd" font-family="monospace" font-size="11"><text x="77" y="97" text-anchor="middle">01</text><text x="119" y="97" text-anchor="middle">02</text><text x="161" y="97" text-anchor="middle">03</text><text x="203" y="97" text-anchor="middle">04</text><text x="245" y="97" text-anchor="middle">05</text><text x="287" y="97" text-anchor="middle">06</text><text x="329" y="97" text-anchor="middle">07</text><text x="371" y="97" text-anchor="middle">08</text><text x="413" y="97" text-anchor="middle">09</text><text x="455" y="97" text-anchor="middle">10</text><text x="497" y="97" text-anchor="middle">11</text><text x="539" y="97" text-anchor="middle">12</text></g>
+      <g fill="#253d4a" fill-opacity=".13" stroke="#adc3ce" stroke-dasharray="4 4" stroke-opacity=".65"><rect x="308" y="111" width="41" height="132" rx="2"/><rect x="350" y="111" width="41" height="132" rx="2"/><rect x="392" y="111" width="41" height="132" rx="2"/><rect x="434" y="111" width="41" height="132" rx="2"/><rect x="476" y="111" width="41" height="132" rx="2"/><rect x="518" y="111" width="41" height="132" rx="2"/></g>
+      <g font-family="system-ui" font-size="8.5" font-weight="700" fill="#203b47"><g>
+      <rect x="56" y="110" width="82" height="133" rx="4" fill="url(#plastic-a)" stroke="#87989b"/>
+      <rect x="58" y="138" width="78" height="77" rx="2" fill="#f8faf8"/>
+      <path d="M60 145h74" stroke="#297577" stroke-width="4"/>
+      <text x="61" y="163">Térmica</text><text x="61" y="176" fill="#47606a">C32</text>
+      <rect x="64" y="185" width="66" height="22" rx="3" fill="#34464f"/>
+      <path d="M68 192h58" stroke="#81959d" stroke-width="4"/>
+      <g fill="#d5dfdc" stroke="#4c616b"><circle cx="77" cy="123" r="5"/><circle cx="77" cy="230" r="5"/><circle cx="119" cy="123" r="5"/><circle cx="119" cy="230" r="5"/></g>
+    </g><g>
+      <rect x="140" y="110" width="82" height="133" rx="4" fill="url(#plastic-a)" stroke="#87989b"/>
+      <rect x="142" y="138" width="78" height="77" rx="2" fill="#f8faf8"/>
+      <path d="M144 145h74" stroke="#297577" stroke-width="4"/>
+      <text x="145" y="163">Diferencial</text><text x="145" y="176" fill="#47606a">30 mA</text>
+      <rect x="148" y="185" width="66" height="22" rx="3" fill="#34464f"/>
+      <path d="M152 192h58" stroke="#81959d" stroke-width="4"/>
+      <g fill="#d5dfdc" stroke="#4c616b"><circle cx="161" cy="123" r="5"/><circle cx="161" cy="230" r="5"/><circle cx="203" cy="123" r="5"/><circle cx="203" cy="230" r="5"/></g>
+    </g><g>
+      <rect x="224" y="110" width="40" height="133" rx="4" fill="url(#plastic-a)" stroke="#87989b"/>
+      <rect x="226" y="138" width="36" height="77" rx="2" fill="#f8faf8"/>
+      <path d="M228 145h32" stroke="#3b93d0" stroke-width="4"/>
+      <text x="229" y="163">N</text><text x="229" y="176" fill="#47606a">Neutro</text>
+      <rect x="232" y="185" width="24" height="22" rx="3" fill="#34464f"/>
+      <path d="M236 192h16" stroke="#81959d" stroke-width="4"/>
+      <g fill="#d5dfdc" stroke="#4c616b"><circle cx="245" cy="123" r="5"/><circle cx="245" cy="230" r="5"/></g>
+    </g><g>
+      <rect x="266" y="110" width="40" height="133" rx="4" fill="url(#plastic-a)" stroke="#87989b"/>
+      <rect x="268" y="138" width="36" height="77" rx="2" fill="#f8faf8"/>
+      <path d="M270 145h32" stroke="#78a95d" stroke-width="4"/>
+      <text x="271" y="163">PE</text><text x="271" y="176" fill="#47606a">Tierra</text>
+      <rect x="274" y="185" width="24" height="22" rx="3" fill="#34464f"/>
+      <path d="M278 192h16" stroke="#81959d" stroke-width="4"/>
+      <g fill="#d5dfdc" stroke="#4c616b"><circle cx="287" cy="123" r="5"/><circle cx="287" cy="230" r="5"/></g>
+    </g></g>
+      <path d="M77 123V77h84v46" fill="none" stroke="#d97e51" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M203 230v26h42v-26" fill="none" stroke="#78d6ff" stroke-width="11" opacity=".24" stroke-linejoin="round"/>
+      <path d="M203 230v26h42v-26" fill="none" stroke="#79d5fd" stroke-width="4.5" stroke-linejoin="round"/>
+      <g fill="#c7f1ff" stroke="#1f6383" stroke-width="2"><circle cx="203" cy="230" r="5"/><circle cx="245" cy="230" r="5"/></g>
+      <g fill="#879aa3" stroke="#e7eff0"><circle cx="33" cy="39" r="4"/><circle cx="583" cy="39" r="4"/><circle cx="33" cy="305" r="4"/><circle cx="583" cy="305" r="4"/></g>
+    </svg>
+      <div class="canvas-foot"><span>● Tramo seleccionado</span><span>− &nbsp; 100 % &nbsp; +</span></div>
+    </div><div><div class="inspect"><h3>Propiedades del tramo</h3>
+      <p class="selection">Diferencial → Bornera N</p>
+      <dl><dt>Color</dt><dd><i></i> Azul · Neutro</dd><dt>Sección nominal</dt><dd>2,5 mm²</dd></dl>
+      <span class="control danger">Eliminar tramo</span></div><details><summary>Lista de materiales</summary><dl class="materials">
+      <dt>Térmica C32</dt><dd>1 unidad</dd><dt>Diferencial 30 mA</dt><dd>1 unidad</dd>
+      <dt>Bornera N</dt><dd>1 unidad</dd><dt>Bornera PE</dt><dd>1 unidad</dd>
+      <dt>Tramo azul · 2,5 mm²</dt><dd>1 tramo</dd><dt>Tramo marrón · 2,5 mm²</dt><dd>1 tramo</dd>
+    </dl></details></div></div>
+      </div>
+    </section><section id="b" aria-labelledby="titulo-b" class="option">
+      <h2 id="titulo-b">B · Catálogo inferior</h2><p class="description">El catálogo ocupa una fila debajo del tablero. El dibujo gana ancho y las propiedades siguen a la derecha.</p>
+      <div class="editor">
+        <div class="project"><div><strong>STUDIO</strong><span class="project-name">Tablero del taller ✎</span></div><div class="project-meta"><span>Monofásico ▾</span><span class="saved">✓ Guardado en este navegador</span></div></div>
+        <div class="toolbar"><span class="control">↶ Deshacer</span><span class="control muted">↷ Rehacer</span><span class="control">Montar</span><span class="control active">Conectar</span></div>
+        <div class="bottom"><div class="canvas">
+      <div class="canvas-head"><strong>Gabinete DIN</strong><span>6 de 12 módulos ocupados</span></div>
+      <svg viewBox="0 0 616 340" role="img" aria-labelledby="tablero-b" xmlns="http://www.w3.org/2000/svg">
+      <title id="tablero-b">Gabinete de 12 módulos DIN, con seis ocupados, seis libres y dos tramos dibujados</title>
+      <defs>
+        <linearGradient id="box-b" x2="0" y2="1"><stop stop-color="#f3f7f7"/><stop offset="1" stop-color="#bccbd0"/></linearGradient>
+        <linearGradient id="rail-b" x2="0" y2="1"><stop stop-color="#829399"/><stop offset=".16" stop-color="#e2eaeb"/><stop offset=".83" stop-color="#a9b9be"/><stop offset="1" stop-color="#657b85"/></linearGradient>
+        <linearGradient id="plastic-b" x2="0" y2="1"><stop stop-color="#eaf1f0"/><stop offset="1" stop-color="#c4d2d2"/></linearGradient>
+      </defs>
+      <rect x="16" y="22" width="584" height="300" rx="21" fill="url(#box-b)" stroke="#8c9fa6"/>
+      <rect x="29" y="36" width="558" height="272" rx="14" fill="#536c78" stroke="#e8eff0" stroke-width="3"/>
+      <rect x="44" y="48" width="528" height="248" rx="9" fill="#253d4a"/>
+      <path d="M60 67h494M60 274h494" stroke="#3b5360" stroke-width="10" stroke-dasharray="6 4"/>
+      <rect x="53" y="150" width="510" height="55" rx="2" fill="url(#rail-b)" stroke="#b8c9cc"/>
+      <path d="M54 157h508m-508 41h508" stroke="#f2f6f4" opacity=".7"/>
+      <g fill="#cbd9dd" font-family="monospace" font-size="11"><text x="77" y="97" text-anchor="middle">01</text><text x="119" y="97" text-anchor="middle">02</text><text x="161" y="97" text-anchor="middle">03</text><text x="203" y="97" text-anchor="middle">04</text><text x="245" y="97" text-anchor="middle">05</text><text x="287" y="97" text-anchor="middle">06</text><text x="329" y="97" text-anchor="middle">07</text><text x="371" y="97" text-anchor="middle">08</text><text x="413" y="97" text-anchor="middle">09</text><text x="455" y="97" text-anchor="middle">10</text><text x="497" y="97" text-anchor="middle">11</text><text x="539" y="97" text-anchor="middle">12</text></g>
+      <g fill="#253d4a" fill-opacity=".13" stroke="#adc3ce" stroke-dasharray="4 4" stroke-opacity=".65"><rect x="308" y="111" width="41" height="132" rx="2"/><rect x="350" y="111" width="41" height="132" rx="2"/><rect x="392" y="111" width="41" height="132" rx="2"/><rect x="434" y="111" width="41" height="132" rx="2"/><rect x="476" y="111" width="41" height="132" rx="2"/><rect x="518" y="111" width="41" height="132" rx="2"/></g>
+      <g font-family="system-ui" font-size="8.5" font-weight="700" fill="#203b47"><g>
+      <rect x="56" y="110" width="82" height="133" rx="4" fill="url(#plastic-b)" stroke="#87989b"/>
+      <rect x="58" y="138" width="78" height="77" rx="2" fill="#f8faf8"/>
+      <path d="M60 145h74" stroke="#297577" stroke-width="4"/>
+      <text x="61" y="163">Térmica</text><text x="61" y="176" fill="#47606a">C32</text>
+      <rect x="64" y="185" width="66" height="22" rx="3" fill="#34464f"/>
+      <path d="M68 192h58" stroke="#81959d" stroke-width="4"/>
+      <g fill="#d5dfdc" stroke="#4c616b"><circle cx="77" cy="123" r="5"/><circle cx="77" cy="230" r="5"/><circle cx="119" cy="123" r="5"/><circle cx="119" cy="230" r="5"/></g>
+    </g><g>
+      <rect x="140" y="110" width="82" height="133" rx="4" fill="url(#plastic-b)" stroke="#87989b"/>
+      <rect x="142" y="138" width="78" height="77" rx="2" fill="#f8faf8"/>
+      <path d="M144 145h74" stroke="#297577" stroke-width="4"/>
+      <text x="145" y="163">Diferencial</text><text x="145" y="176" fill="#47606a">30 mA</text>
+      <rect x="148" y="185" width="66" height="22" rx="3" fill="#34464f"/>
+      <path d="M152 192h58" stroke="#81959d" stroke-width="4"/>
+      <g fill="#d5dfdc" stroke="#4c616b"><circle cx="161" cy="123" r="5"/><circle cx="161" cy="230" r="5"/><circle cx="203" cy="123" r="5"/><circle cx="203" cy="230" r="5"/></g>
+    </g><g>
+      <rect x="224" y="110" width="40" height="133" rx="4" fill="url(#plastic-b)" stroke="#87989b"/>
+      <rect x="226" y="138" width="36" height="77" rx="2" fill="#f8faf8"/>
+      <path d="M228 145h32" stroke="#3b93d0" stroke-width="4"/>
+      <text x="229" y="163">N</text><text x="229" y="176" fill="#47606a">Neutro</text>
+      <rect x="232" y="185" width="24" height="22" rx="3" fill="#34464f"/>
+      <path d="M236 192h16" stroke="#81959d" stroke-width="4"/>
+      <g fill="#d5dfdc" stroke="#4c616b"><circle cx="245" cy="123" r="5"/><circle cx="245" cy="230" r="5"/></g>
+    </g><g>
+      <rect x="266" y="110" width="40" height="133" rx="4" fill="url(#plastic-b)" stroke="#87989b"/>
+      <rect x="268" y="138" width="36" height="77" rx="2" fill="#f8faf8"/>
+      <path d="M270 145h32" stroke="#78a95d" stroke-width="4"/>
+      <text x="271" y="163">PE</text><text x="271" y="176" fill="#47606a">Tierra</text>
+      <rect x="274" y="185" width="24" height="22" rx="3" fill="#34464f"/>
+      <path d="M278 192h16" stroke="#81959d" stroke-width="4"/>
+      <g fill="#d5dfdc" stroke="#4c616b"><circle cx="287" cy="123" r="5"/><circle cx="287" cy="230" r="5"/></g>
+    </g></g>
+      <path d="M77 123V77h84v46" fill="none" stroke="#d97e51" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M203 230v26h42v-26" fill="none" stroke="#78d6ff" stroke-width="11" opacity=".24" stroke-linejoin="round"/>
+      <path d="M203 230v26h42v-26" fill="none" stroke="#79d5fd" stroke-width="4.5" stroke-linejoin="round"/>
+      <g fill="#c7f1ff" stroke="#1f6383" stroke-width="2"><circle cx="203" cy="230" r="5"/><circle cx="245" cy="230" r="5"/></g>
+      <g fill="#879aa3" stroke="#e7eff0"><circle cx="33" cy="39" r="4"/><circle cx="583" cy="39" r="4"/><circle cx="33" cy="305" r="4"/><circle cx="583" cy="305" r="4"/></g>
+    </svg>
+      <div class="canvas-foot"><span>● Tramo seleccionado</span><span>− &nbsp; 100 % &nbsp; +</span></div>
+    </div><div><div class="inspect"><h3>Propiedades del tramo</h3>
+      <p class="selection">Diferencial → Bornera N</p>
+      <dl><dt>Color</dt><dd><i></i> Azul · Neutro</dd><dt>Sección nominal</dt><dd>2,5 mm²</dd></dl>
+      <span class="control danger">Eliminar tramo</span></div><details><summary>Lista de materiales</summary><dl class="materials">
+      <dt>Térmica C32</dt><dd>1 unidad</dd><dt>Diferencial 30 mA</dt><dd>1 unidad</dd>
+      <dt>Bornera N</dt><dd>1 unidad</dd><dt>Bornera PE</dt><dd>1 unidad</dd>
+      <dt>Tramo azul · 2,5 mm²</dt><dd>1 tramo</dd><dt>Tramo marrón · 2,5 mm²</dt><dd>1 tramo</dd>
+    </dl></details></div><div class="catalog"><h3>Catálogo</h3><ul><li><i class="breaker" aria-hidden="true"></i><span><b>Térmica</b><small>2 módulos</small></span></li><li><i class="rcd" aria-hidden="true"></i><span><b>Diferencial</b><small>2 módulos</small></span></li><li><i class="neutral" aria-hidden="true"></i><span><b>Bornera N</b><small>1 módulo</small></span></li><li><i class="earth" aria-hidden="true"></i><span><b>Bornera PE</b><small>1 módulo</small></span></li></ul></div></div>
+      </div>
+    </section><section id="c" aria-labelledby="titulo-c" class="option">
+      <h2 id="titulo-c">C · Editor por modos</h2><p class="description">Montar, Conectar y Materiales comparten el panel derecho. Probá los tres modos con el mismo tablero visible.</p>
+      <div class="editor">
+        <div class="project"><div><strong>STUDIO</strong><span class="project-name">Tablero del taller ✎</span></div><div class="project-meta"><span>Monofásico ▾</span><span class="saved">✓ Guardado en este navegador</span></div></div>
+        <div class="toolbar"><span class="control">↶ Deshacer</span><span class="control muted">↷ Rehacer</span></div>
+        <div class="mode-layout"><div class="modes" aria-label="Modos del editor" role="group">
+  <button type="button" aria-pressed="false" aria-controls="montar">Montar</button>
+  <button type="button" aria-pressed="true" aria-controls="conectar">Conectar</button>
+  <button type="button" aria-pressed="false" aria-controls="materiales">Materiales</button>
+</div><div class="mode-body"><div class="canvas">
+      <div class="canvas-head"><strong>Gabinete DIN</strong><span>6 de 12 módulos ocupados</span></div>
+      <svg viewBox="0 0 616 340" role="img" aria-labelledby="tablero-c" xmlns="http://www.w3.org/2000/svg">
+      <title id="tablero-c">Gabinete de 12 módulos DIN, con seis ocupados, seis libres y dos tramos dibujados</title>
+      <defs>
+        <linearGradient id="box-c" x2="0" y2="1"><stop stop-color="#f3f7f7"/><stop offset="1" stop-color="#bccbd0"/></linearGradient>
+        <linearGradient id="rail-c" x2="0" y2="1"><stop stop-color="#829399"/><stop offset=".16" stop-color="#e2eaeb"/><stop offset=".83" stop-color="#a9b9be"/><stop offset="1" stop-color="#657b85"/></linearGradient>
+        <linearGradient id="plastic-c" x2="0" y2="1"><stop stop-color="#eaf1f0"/><stop offset="1" stop-color="#c4d2d2"/></linearGradient>
+      </defs>
+      <rect x="16" y="22" width="584" height="300" rx="21" fill="url(#box-c)" stroke="#8c9fa6"/>
+      <rect x="29" y="36" width="558" height="272" rx="14" fill="#536c78" stroke="#e8eff0" stroke-width="3"/>
+      <rect x="44" y="48" width="528" height="248" rx="9" fill="#253d4a"/>
+      <path d="M60 67h494M60 274h494" stroke="#3b5360" stroke-width="10" stroke-dasharray="6 4"/>
+      <rect x="53" y="150" width="510" height="55" rx="2" fill="url(#rail-c)" stroke="#b8c9cc"/>
+      <path d="M54 157h508m-508 41h508" stroke="#f2f6f4" opacity=".7"/>
+      <g fill="#cbd9dd" font-family="monospace" font-size="11"><text x="77" y="97" text-anchor="middle">01</text><text x="119" y="97" text-anchor="middle">02</text><text x="161" y="97" text-anchor="middle">03</text><text x="203" y="97" text-anchor="middle">04</text><text x="245" y="97" text-anchor="middle">05</text><text x="287" y="97" text-anchor="middle">06</text><text x="329" y="97" text-anchor="middle">07</text><text x="371" y="97" text-anchor="middle">08</text><text x="413" y="97" text-anchor="middle">09</text><text x="455" y="97" text-anchor="middle">10</text><text x="497" y="97" text-anchor="middle">11</text><text x="539" y="97" text-anchor="middle">12</text></g>
+      <g fill="#253d4a" fill-opacity=".13" stroke="#adc3ce" stroke-dasharray="4 4" stroke-opacity=".65"><rect x="308" y="111" width="41" height="132" rx="2"/><rect x="350" y="111" width="41" height="132" rx="2"/><rect x="392" y="111" width="41" height="132" rx="2"/><rect x="434" y="111" width="41" height="132" rx="2"/><rect x="476" y="111" width="41" height="132" rx="2"/><rect x="518" y="111" width="41" height="132" rx="2"/></g>
+      <g font-family="system-ui" font-size="8.5" font-weight="700" fill="#203b47"><g>
+      <rect x="56" y="110" width="82" height="133" rx="4" fill="url(#plastic-c)" stroke="#87989b"/>
+      <rect x="58" y="138" width="78" height="77" rx="2" fill="#f8faf8"/>
+      <path d="M60 145h74" stroke="#297577" stroke-width="4"/>
+      <text x="61" y="163">Térmica</text><text x="61" y="176" fill="#47606a">C32</text>
+      <rect x="64" y="185" width="66" height="22" rx="3" fill="#34464f"/>
+      <path d="M68 192h58" stroke="#81959d" stroke-width="4"/>
+      <g fill="#d5dfdc" stroke="#4c616b"><circle cx="77" cy="123" r="5"/><circle cx="77" cy="230" r="5"/><circle cx="119" cy="123" r="5"/><circle cx="119" cy="230" r="5"/></g>
+    </g><g>
+      <rect x="140" y="110" width="82" height="133" rx="4" fill="url(#plastic-c)" stroke="#87989b"/>
+      <rect x="142" y="138" width="78" height="77" rx="2" fill="#f8faf8"/>
+      <path d="M144 145h74" stroke="#297577" stroke-width="4"/>
+      <text x="145" y="163">Diferencial</text><text x="145" y="176" fill="#47606a">30 mA</text>
+      <rect x="148" y="185" width="66" height="22" rx="3" fill="#34464f"/>
+      <path d="M152 192h58" stroke="#81959d" stroke-width="4"/>
+      <g fill="#d5dfdc" stroke="#4c616b"><circle cx="161" cy="123" r="5"/><circle cx="161" cy="230" r="5"/><circle cx="203" cy="123" r="5"/><circle cx="203" cy="230" r="5"/></g>
+    </g><g>
+      <rect x="224" y="110" width="40" height="133" rx="4" fill="url(#plastic-c)" stroke="#87989b"/>
+      <rect x="226" y="138" width="36" height="77" rx="2" fill="#f8faf8"/>
+      <path d="M228 145h32" stroke="#3b93d0" stroke-width="4"/>
+      <text x="229" y="163">N</text><text x="229" y="176" fill="#47606a">Neutro</text>
+      <rect x="232" y="185" width="24" height="22" rx="3" fill="#34464f"/>
+      <path d="M236 192h16" stroke="#81959d" stroke-width="4"/>
+      <g fill="#d5dfdc" stroke="#4c616b"><circle cx="245" cy="123" r="5"/><circle cx="245" cy="230" r="5"/></g>
+    </g><g>
+      <rect x="266" y="110" width="40" height="133" rx="4" fill="url(#plastic-c)" stroke="#87989b"/>
+      <rect x="268" y="138" width="36" height="77" rx="2" fill="#f8faf8"/>
+      <path d="M270 145h32" stroke="#78a95d" stroke-width="4"/>
+      <text x="271" y="163">PE</text><text x="271" y="176" fill="#47606a">Tierra</text>
+      <rect x="274" y="185" width="24" height="22" rx="3" fill="#34464f"/>
+      <path d="M278 192h16" stroke="#81959d" stroke-width="4"/>
+      <g fill="#d5dfdc" stroke="#4c616b"><circle cx="287" cy="123" r="5"/><circle cx="287" cy="230" r="5"/></g>
+    </g></g>
+      <path d="M77 123V77h84v46" fill="none" stroke="#d97e51" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M203 230v26h42v-26" fill="none" stroke="#78d6ff" stroke-width="11" opacity=".24" stroke-linejoin="round"/>
+      <path d="M203 230v26h42v-26" fill="none" stroke="#79d5fd" stroke-width="4.5" stroke-linejoin="round"/>
+      <g fill="#c7f1ff" stroke="#1f6383" stroke-width="2"><circle cx="203" cy="230" r="5"/><circle cx="245" cy="230" r="5"/></g>
+      <g fill="#879aa3" stroke="#e7eff0"><circle cx="33" cy="39" r="4"/><circle cx="583" cy="39" r="4"/><circle cx="33" cy="305" r="4"/><circle cx="583" cy="305" r="4"/></g>
+    </svg>
+      <div class="canvas-foot"><span>● Tramo seleccionado</span><span>− &nbsp; 100 % &nbsp; +</span></div>
+    </div><div>
+  <div id="montar" hidden><div class="catalog"><h3>Catálogo</h3><ul><li><i class="breaker" aria-hidden="true"></i><span><b>Térmica</b><small>2 módulos</small></span></li><li><i class="rcd" aria-hidden="true"></i><span><b>Diferencial</b><small>2 módulos</small></span></li><li><i class="neutral" aria-hidden="true"></i><span><b>Bornera N</b><small>1 módulo</small></span></li><li><i class="earth" aria-hidden="true"></i><span><b>Bornera PE</b><small>1 módulo</small></span></li></ul></div></div>
+  <div id="conectar"><div class="inspect"><h3>Propiedades del tramo</h3>
+      <p class="selection">Diferencial → Bornera N</p>
+      <dl><dt>Color</dt><dd><i></i> Azul · Neutro</dd><dt>Sección nominal</dt><dd>2,5 mm²</dd></dl>
+      <span class="control danger">Eliminar tramo</span></div></div>
+  <div id="materiales" hidden><details open><summary>Lista de materiales</summary><dl class="materials">
+      <dt>Térmica C32</dt><dd>1 unidad</dd><dt>Diferencial 30 mA</dt><dd>1 unidad</dd>
+      <dt>Bornera N</dt><dd>1 unidad</dd><dt>Bornera PE</dt><dd>1 unidad</dd>
+      <dt>Tramo azul · 2,5 mm²</dt><dd>1 tramo</dd><dt>Tramo marrón · 2,5 mm²</dt><dd>1 tramo</dd>
+    </dl></details></div>
+</div></div></div>
+      </div>
+    </section><footer><p>Maqueta visual. Los enlaces, la lista de materiales y el selector de modos se pueden explorar.</p></footer>
+</main>
+<script>
+const modes = document.querySelectorAll(".modes button");
+modes.forEach((button) => {
+  button.addEventListener("click", () => {
+    modes.forEach((mode) => {
+      const selected = mode === button;
+      mode.setAttribute("aria-pressed", String(selected));
+      document.getElementById(mode.getAttribute("aria-controls")).hidden = !selected;
+    });
+  });
+});
+</script>
+</body>
+</html>

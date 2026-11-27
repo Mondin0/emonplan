@@ -5,6 +5,7 @@ import {ReactFlow,Background,Controls,Handle,Position,getBezierPath} from '@xyfl
 import '@xyflow/react/dist/style.css';
 import './style.css';
 import {SchemeEditor} from './SchemeEditor';
+import {Studio} from './Studio';
 import {NewWork, WorkList, workStatus, type Client, type Work} from './Works';
 import {WorkBudget} from './WorkBudget';
 import {pesoCents, pesos} from './money';
@@ -21,7 +22,8 @@ const [referenceAttempt,setReferenceAttempt]=useState(0);
 const workHeading=useRef<HTMLHeadingElement>(null);
 const columns = page === 'Presupuestos' ? quotationColumns : section?.fields;
 const focusedWorkPage = page === 'Obras' || page === 'Nueva obra' || page === 'Obra';
-const focusPageHeading = focusedWorkPage || ['Lecciones', 'Clientes', 'Materiales'].includes(page);
+const focusPageHeading = focusedWorkPage || ['Studio', 'Lecciones', 'Clientes', 'Materiales'].includes(page);
+const usesReferences = page !== 'Lecciones' && page !== 'Studio';
 const clients = references.clients as Client[] | undefined;
 const works = references.projects as Work[] | undefined;
 const currentClient = clients?.find(client => client.id === currentWork?.client_id) ?? workClient;
@@ -71,7 +73,7 @@ useEffect(()=>{api('me').then(()=>setUser(true)).catch(()=>setUser(false))},[]);
 async function load(){if(!section)return;setLoading(true);try{const data=await api(section.path);setRows(Array.isArray(data)?data:[]);setError('')}catch(e){setError(String(e))}finally{setLoading(false)}}
 useEffect(()=>{if(user&&section)load()},[user,page]);
 useEffect(() => {
-  if (!user || page === 'Lecciones') return;
+  if (!user || !usesReferences) return;
   const controller = new AbortController();
   setReferenceIssue(false);
   for (const path of ['clients', 'projects', 'boards', 'materials']) {
@@ -80,14 +82,15 @@ useEffect(() => {
       .catch(() => { if (!controller.signal.aborted) setReferenceIssue(true); });
   }
   return () => controller.abort();
-}, [user, page, referenceAttempt]);
+}, [user, page, referenceAttempt, usesReferences]);
 async function login(e:React.FormEvent<HTMLFormElement>){e.preventDefault();const data=new FormData(e.currentTarget);try{await api('login',{method:'POST',body:JSON.stringify(Object.fromEntries(data))});setUser(true);setError('')}catch(e){setError(String(e))}}
 async function save(e:React.FormEvent){e.preventDefault();try{const body=Object.fromEntries(section.fields.map(([key,,type])=>[key,type==='number'?Number(form[key]):form[key]??(key==='status'?'pendiente':'')]));if(page==='Presupuestos') body.labor_cents=pesoCents(form.labor_cents);await api(section.path+(edit!==null?'/'+edit:''),{method:edit!==null?'PUT':'POST',body:JSON.stringify(body)});setForm({});setEdit(null);await load()}catch(e){setError(String(e))}}
 async function remove(id:number){if(!window.confirm('¿Eliminar este registro?'))return;try{await api(section.path+'/'+id,{method:'DELETE'});await load()}catch(e){setError(String(e))}}
 if(!user)return <main className="login"><h1>EmonPlan</h1><p>Gestión de instalaciones eléctricas</p><form onSubmit={login}><label>Usuario<input name="email" type="email" autoComplete="username" spellCheck={false} required/></label><label>Contraseña<input name="password" type="password" autoComplete="current-password" required/></label><button>Ingresar</button></form>{error&&<p role="alert">{error}</p>}</main>;
 return <div className="layout"><aside><h1>⚡ EmonPlan</h1><nav aria-label="Principal"><button className={page==='Inicio'?'active':''} aria-current={page==='Inicio'?'page':undefined} onClick={()=>navigate('Inicio')}>Inicio</button>
 <button className={focusedWorkPage?'active':''} aria-current={page==='Obras'?'page':undefined} onClick={()=>navigate('Obras')}>Obras</button>
-{Object.keys(sections).map(x=><button key={x} className={page===x?'active':''} onClick={()=>navigate(x)}>{x}</button>)}<button className={page==='Planos'?'active':''} onClick={()=>setPage('Planos')}>Planos</button><button className={page==='Lecciones'?'active':''} aria-current={page==='Lecciones'?'page':undefined} onClick={()=>navigate('Lecciones')}>Lecciones</button></nav><button onClick={logout}>Cerrar sesión</button></aside><main><header>
+{Object.keys(sections).map(x=><button key={x} className={page===x?'active':''} onClick={()=>navigate(x)}>{x}</button>)}<button className={page==='Planos'?'active':''} onClick={()=>setPage('Planos')}>Planos</button>
+<button className={page==='Studio'?'active':''} aria-current={page==='Studio'?'page':undefined} onClick={()=>navigate('Studio')}>Studio</button><button className={page==='Lecciones'?'active':''} aria-current={page==='Lecciones'?'page':undefined} onClick={()=>navigate('Lecciones')}>Lecciones</button></nav><button onClick={logout}>Cerrar sesión</button></aside><main><header>
 <p>{page==='Lecciones'?'EMONPLAN / APRENDIZAJE':'EM ONPLAN / ESPACIO DE TRABAJO'}</p>
 <h2 ref={workHeading} tabIndex={focusPageHeading?-1:undefined}>{page==='Obra'?currentWork?.name:page}</h2>
 {page==='Obra'&&currentWork&&<dl className="work-meta">
@@ -95,11 +98,11 @@ return <div className="layout"><aside><h1>⚡ EmonPlan</h1><nav aria-label="Prin
   <div><dt>Estado</dt><dd>{workStatus(currentWork.status)}</dd></div>
 </dl>}
 </header>
-{referenceIssue&&page!=='Lecciones'&&<div className="work-actions">
+{referenceIssue&&usesReferences&&<div className="work-actions">
   <p role="alert">No pudimos cargar todos los datos.</p>
   <button onClick={()=>setReferenceAttempt(attempt=>attempt+1)}>Volver a cargar</button>
 </div>}
-{error&&page!=='Lecciones'&&<p role="alert" className="error">{error}</p>}{section?<><section className="card"><h3>{edit===null?'Nuevo registro':'Editar registro'}</h3><form className="fields" onSubmit={save}>{section.fields.map(([key,label,type])=><label key={key}>{label}{key==='status'?<select name={key} value={form[key]??'pendiente'} onChange={e=>setForm({...form,[key]:e.target.value})}><option value="pendiente">Pendiente</option><option value="en ejecución">En ejecución</option><option value="finalizada">Finalizada</option></select>:key.endsWith('_id')?<select name={key} value={form[key]??''} required onChange={e=>setForm({...form,[key]:e.target.value})}><option value="">Seleccionar</option>{(references[({client_id:'clients',project_id:'projects',board_id:'boards',material_id:'materials'} as Record<string,string>)[key]]||[]).map(row=><option key={row.id} value={row.id}>{row.name}</option>)}</select>:<input name={key} inputMode={key==='labor_cents'?'decimal':undefined} placeholder={key==='labor_cents'?'Ej. 15.000,25':undefined} type={type||'text'} step={type==='number'?'any':undefined} value={form[key]??''} onChange={e=>setForm({...form,[key]:e.target.value})} required={key==='name'||key.endsWith('_id')}/>}</label>)}<div><button type="submit">{edit===null?'Guardar':'Actualizar'}</button>{edit!==null&&<button type="button" onClick={()=>{setEdit(null);setForm({})}}>Cancelar</button>}</div></form></section><section className="card"><h3>Registros</h3>{loading?<p>Cargando…</p>:rows.length===0?<p>No hay registros todavía.</p>:<div className="table"><table><thead><tr>{page!=='Presupuestos'&&<th>ID</th>}{columns.map(([key,label])=><th key={key}>{label}</th>)}<th>Acciones</th></tr></thead><tbody>{rows.map(row=><tr key={row.id}>{page!=='Presupuestos'&&<td>{row.id}</td>}{columns.map(([key])=><td key={key}>{key==='total_cents'?pesos.format(row[key]/100):String(row[key]??'')}</td>)}<td>{page==='Proyectos'&&<button aria-label={'Abrir obra '+row.name} onClick={()=>openWork(row as Work)}>Abrir obra</button>}{page==='Proyectos'&&<button aria-label={'Esquemas de '+row.name} onClick={()=>{setSchemeProject(row);setPage('Esquemas')}}>Esquemas</button>}{page==='Proyectos'&&<button aria-label={'Ver unifilar de '+row.name} onClick={()=>{setUnifilarId(row.id);setPage('Unifilar')}}>Ver unifilar</button>}{page!=='Presupuestos'&&<><button onClick={()=>{setForm(row);setEdit(row.id)}}>Editar</button><button onClick={()=>remove(row.id)}>Eliminar</button></>}{page==='Presupuestos'&&<a href={'/api/quotations/'+row.id+'/pdf'} target="_blank">PDF</a>}</td></tr>)}</tbody></table></div>}</section></>:page==='Lecciones'?<Lessons onNavigate={navigate}/>:page==='Inicio'||page==='Obras'?<>
+{error&&page!=='Lecciones'&&<p role="alert" className="error">{error}</p>}{section?<><section className="card"><h3>{edit===null?'Nuevo registro':'Editar registro'}</h3><form className="fields" onSubmit={save}>{section.fields.map(([key,label,type])=><label key={key}>{label}{key==='status'?<select name={key} value={form[key]??'pendiente'} onChange={e=>setForm({...form,[key]:e.target.value})}><option value="pendiente">Pendiente</option><option value="en ejecución">En ejecución</option><option value="finalizada">Finalizada</option></select>:key.endsWith('_id')?<select name={key} value={form[key]??''} required onChange={e=>setForm({...form,[key]:e.target.value})}><option value="">Seleccionar</option>{(references[({client_id:'clients',project_id:'projects',board_id:'boards',material_id:'materials'} as Record<string,string>)[key]]||[]).map(row=><option key={row.id} value={row.id}>{row.name}</option>)}</select>:<input name={key} inputMode={key==='labor_cents'?'decimal':undefined} placeholder={key==='labor_cents'?'Ej. 15.000,25':undefined} type={type||'text'} step={type==='number'?'any':undefined} value={form[key]??''} onChange={e=>setForm({...form,[key]:e.target.value})} required={key==='name'||key.endsWith('_id')}/>}</label>)}<div><button type="submit">{edit===null?'Guardar':'Actualizar'}</button>{edit!==null&&<button type="button" onClick={()=>{setEdit(null);setForm({})}}>Cancelar</button>}</div></form></section><section className="card"><h3>Registros</h3>{loading?<p>Cargando…</p>:rows.length===0?<p>No hay registros todavía.</p>:<div className="table"><table><thead><tr>{page!=='Presupuestos'&&<th>ID</th>}{columns.map(([key,label])=><th key={key}>{label}</th>)}<th>Acciones</th></tr></thead><tbody>{rows.map(row=><tr key={row.id}>{page!=='Presupuestos'&&<td>{row.id}</td>}{columns.map(([key])=><td key={key}>{key==='total_cents'?pesos.format(row[key]/100):String(row[key]??'')}</td>)}<td>{page==='Proyectos'&&<button aria-label={'Abrir obra '+row.name} onClick={()=>openWork(row as Work)}>Abrir obra</button>}{page==='Proyectos'&&<button aria-label={'Esquemas de '+row.name} onClick={()=>{setSchemeProject(row);setPage('Esquemas')}}>Esquemas</button>}{page==='Proyectos'&&<button aria-label={'Ver unifilar de '+row.name} onClick={()=>{setUnifilarId(row.id);setPage('Unifilar')}}>Ver unifilar</button>}{page!=='Presupuestos'&&<><button onClick={()=>{setForm(row);setEdit(row.id)}}>Editar</button><button onClick={()=>remove(row.id)}>Eliminar</button></>}{page==='Presupuestos'&&<a href={'/api/quotations/'+row.id+'/pdf'} target="_blank">PDF</a>}</td></tr>)}</tbody></table></div>}</section></>:page==='Studio'?<Studio/>:page==='Lecciones'?<Lessons onNavigate={navigate}/>:page==='Inicio'||page==='Obras'?<>
   <WorkList works={works} clients={clients} recent={page==='Inicio'} unavailable={referenceIssue} onCreate={()=>navigate('Nueva obra')} onOpen={openWork}/>
   {page==='Inicio'&&<>
     <section className="card">

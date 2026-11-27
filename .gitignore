@@ -8,3 +8,6 @@ playwright-report/
 
 .playwright-mcp/
 *.tsbuildinfo
+
+# Borrador HTML del alcance de Studio, documentado en Markdown.
+/docs/studio/studio-alcance-mvp.html
