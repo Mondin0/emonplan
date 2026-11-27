@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Manual operativo de EmonPlan para gestionar obras eléctricas y compartir presupuestos.">
+  <title>EmonPlan · Manual de usuario</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f3f5f1;
+      --ink: #172922;
+      --muted: #45584d;
+      --accent: #17604c;
+      --line: #cbd6ce;
+      --tint: #e8f1eb;
+      font-family: system-ui, sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; background: var(--paper); color: var(--ink); line-height: 1.6; }
+    .wrap { width: min(72rem, calc(100% - 2rem)); margin-inline: auto; }
+    a { color: var(--accent); text-underline-offset: .2em; }
+    :focus-visible { outline: .18rem solid #a74a11; outline-offset: .2rem; }
+    .skip { position: absolute; inset-block-start: .5rem; inset-inline-start: 1rem; padding: .5rem 1rem; background: white; }
+    .skip:not(:focus) { clip-path: inset(50%); }
+    .hero { background: #122c23; color: #fff; border-block-end: .35rem solid #88b69d; }
+    .hero .wrap { padding-block: clamp(2rem, 7vw, 5rem); }
+    .brand { margin: 0 0 .75rem; color: #bce1c9; font-weight: 750; letter-spacing: .07em; }
+    h1, h2, h3 { line-height: 1.15; }
+    h1 { font-size: clamp(2.25rem, 6vw, 4.5rem); letter-spacing: -.05em; margin: 0; }
+    h2 { font-size: clamp(1.45rem, 3vw, 2rem); margin: 0 0 .85rem; letter-spacing: -.025em; }
+    h3 { font-size: 1.08rem; margin: 1.5rem 0 .4rem; }
+    .lead { max-width: 60ch; margin: 1rem 0 0; color: #e0eee5; font-size: 1.12rem; }
+    .layout { display: grid; grid-template-columns: 13rem minmax(0, 1fr); gap: clamp(1rem, 4vw, 3rem); padding-block: 2rem 4rem; }
+    nav { position: sticky; top: 1rem; align-self: start; border-block-start: .16rem solid var(--accent); }
+    nav h2 { font-size: 1rem; margin: .8rem 0 .4rem; }
+    nav ul { margin: 0; padding: 0; list-style: none; }
+    nav a { display: block; padding: .3rem 0; }
+    main { display: grid; gap: 1rem; }
+    section { padding: clamp(1rem, 3.75vw, 2rem); border: 1px solid var(--line); border-radius: .6rem; background: white; scroll-margin-top: 1rem; }
+    section:target { border-color: var(--accent); }
+    section > :last-child { margin-block-end: 0; }
+    p { margin: .5rem 0 .8rem; }
+    ol, ul { padding-inline-start: 1.4rem; }
+    li + li { margin-block-start: .42rem; }
+    nav li + li { margin: 0; }
+    main li::marker { color: var(--accent); font-weight: 700; }
+    .note { padding: .8rem 1rem; background: var(--tint); border-inline-start: .2rem solid var(--accent); }
+    dl { margin: .8rem 0; }
+    dt { font-weight: 750; }
+    dd { margin: .15rem 0 .75rem; color: var(--muted); }
+    code { background: var(--tint); padding: .1em .3em; border-radius: .2rem; overflow-wrap: anywhere; }
+
+    @media (max-width: 47rem), (max-height: 34rem) {
+      .layout { grid-template-columns: minmax(0, 1fr); }
+      nav { position: static; }
+    }
+
+    @media print {
+      @page { margin: 15mm; }
+      body, .hero, section, .note, code { background: white; color: black; }
+      body { font-size: 10.5pt; }
+      .wrap { width: auto; }
+      .hero { border-block-end: 1px solid #777; }
+      .hero .wrap, .layout { padding: 0; }
+      .lead, .brand, dd { color: inherit; }
+      h1 { font-size: 28pt; }
+      h2, h3, dt { break-after: avoid; }
+      li, .note { break-inside: avoid; }
+      .layout, main { display: block; }
+      section { border: 0; padding: 0; margin-block: 1.1rem; }
+      nav, .skip { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#ingreso">Saltar al contenido</a>
+  <header class="hero">
+    <div class="wrap">
+      <p class="brand">EmonPlan</p>
+      <h1>Manual de usuario</h1>
+      <p class="lead">Gestioná obras eléctricas, armá presupuestos en pesos argentinos y guardá la documentación técnica de cada instalación.</p>
+    </div>
+  </header>
+
+  <div class="wrap layout">
+    <nav aria-labelledby="indice">
+      <h2 id="indice">En este manual</h2>
+      <ul role="list">
+        <li><a href="#ingreso">Ingresar</a></li>
+        <li><a href="#presupuesto">Presupuestar una obra</a></li>
+        <li><a href="#seguimiento">Seguir la obra</a></li>
+        <li><a href="#documentacion">Documentar la instalación</a></li>
+        <li><a href="#practica">Studio y Lecciones</a></li>
+        <li><a href="#ayuda">Resolver problemas</a></li>
+      </ul>
+    </nav>
+
+    <main>
+      <section aria-labelledby="ingreso">
+        <h2 id="ingreso" tabindex="-1">Ingresar</h2>
+        <p>Abrí la dirección de EmonPlan en el navegador e ingresá con el correo y la contraseña de la cuenta. En la instalación local estándar, la dirección es <code>http://localhost:8080</code> en el equipo donde corre EmonPlan.</p>
+        <p>En <strong>Inicio</strong> vas a encontrar las últimas obras. En <strong>Obras</strong> podés abrir cualquiera de las que ya están cargadas.</p>
+      </section>
+
+      <section id="presupuesto" aria-labelledby="titulo-presupuesto">
+        <h2 id="titulo-presupuesto">Presupuestar una obra</h2>
+        <ol>
+          <li><strong>Creá la obra.</strong> Entrá a <strong>Inicio → Nueva obra</strong>, escribí un nombre y elegí el cliente. Si es nuevo, usá <strong>Agregar cliente</strong>, completá el nombre y pulsá <strong>Guardar cliente</strong>. Después pulsá <strong>Guardar obra</strong> para abrir su ficha.</li>
+          <li><strong>Cargá los materiales.</strong> En <strong>Presupuesto → Agregar material</strong>, elegí un ítem del catálogo o pulsá <strong>Nuevo material de catálogo</strong>. Para un ítem nuevo, cargá nombre, unidad, precio unitario en pesos y, si querés, proveedor. Indicá la cantidad y pulsá <strong>Guardar material</strong>.</li>
+          <li><strong>Generá el presupuesto.</strong> Completá <strong>Mano de obra (pesos)</strong> y pulsá <strong>Generar presupuesto</strong>. Podés cotizar solo mano de obra si todavía estás relevando los materiales.</li>
+          <li><strong>Compartilo.</strong> En <strong>Compartir presupuesto</strong>, pulsá <strong>Descargar PDF</strong> y <strong>Copiar mensaje para WhatsApp</strong>. Pegá el texto en el chat del cliente y adjuntá el PDF descargado.</li>
+        </ol>
+        <p class="note"><strong>Ejemplo de prueba.</strong> Una obra con 20 m de cable a $850 por metro y $35.000 de mano de obra genera un total de $52.000. Los importes son ficticios.</p>
+        <h3>Actualizar una cotización</h3>
+        <p>Volvé a la ficha desde <strong>Obras</strong>. Usá <strong>Editar cantidad</strong> o <strong>Quitar</strong> en los materiales. Si cambió un precio, actualizalo en <strong>Materiales</strong> antes de generar otra versión. Cada versión conserva las cantidades y los precios con los que se emitió. En <strong>Versiones del presupuesto</strong>, podés volver a compartir cualquiera de ellas.</p>
+        <p>En el menú <strong>Materiales</strong>, el campo <strong>Precio (centavos)</strong> usa centavos. Para $850, ingresá <code>85000</code>. Al dar de alta un material desde la ficha de la obra, <strong>Precio por unidad (pesos)</strong> usa pesos.</p>
+      </section>
+
+      <section id="seguimiento" aria-labelledby="titulo-seguimiento">
+        <h2 id="titulo-seguimiento">Seguir la obra</h2>
+        <dl>
+          <dt>Clientes</dt>
+          <dd>Usá <strong>Editar</strong> para completar el correo, el teléfono y la dirección de un cliente creado desde una obra.</dd>
+          <dt>Proyectos</dt>
+          <dd>Buscá la obra y pulsá <strong>Editar</strong> para completar dirección, descripción, tipo de instalación y alimentación. Desde ahí también podés cambiar el estado a <strong>Pendiente</strong>, <strong>En ejecución</strong> o <strong>Finalizada</strong>.</dd>
+          <dt>Cómputo</dt>
+          <dd>Vinculá un material del catálogo y su cantidad a un proyecto. Es el mismo listado que alimenta los próximos presupuestos de la obra.</dd>
+          <dt>Actividades</dt>
+          <dd>Seleccioná el proyecto y guardá una entrada con fecha, descripción y observaciones. Por ejemplo, «Relevamiento inicial» con las tareas pendientes.</dd>
+        </dl>
+      </section>
+
+      <section id="documentacion" aria-labelledby="titulo-documentacion">
+        <h2 id="titulo-documentacion">Documentar la instalación</h2>
+        <h3>Tableros, circuitos y unifilar</h3>
+        <ol>
+          <li>En <strong>Tableros</strong>, seleccioná el proyecto, ingresá el nombre del tablero y guardá.</li>
+          <li>En <strong>Circuitos</strong>, seleccioná el tablero y cargá el identificador, la descripción y los datos relevados. Los campos incluyen potencia en W, tensión en V, protección, sección de conductor en mm² y longitud en m.</li>
+          <li>En <strong>Proyectos</strong>, buscá la obra y pulsá <strong>Ver unifilar</strong>. EmonPlan genera el diagrama a partir de los tableros y circuitos guardados. Usá <strong>Imprimir o guardar como PDF</strong> para sacar una copia.</li>
+        </ol>
+        <p class="note">Los valores eléctricos se cargan a partir del relevamiento. La verificación técnica y normativa queda a cargo del profesional responsable.</p>
+        <h3>Plano de referencia</h3>
+        <p>Entrá en <strong>Planos</strong>, elegí el proyecto, seleccioná una imagen PNG o JPEG de hasta 10 MiB y 40 millones de píxeles, y pulsá <strong>Guardar plano</strong>. Cada proyecto guarda una imagen. Si subís otra, reemplaza la anterior.</p>
+        <h3>Esquema de cableado</h3>
+        <p>En <strong>Proyectos → Esquemas</strong>, abrí una <strong>Hoja en blanco</strong> o el <strong>Ejemplo de dos puntos</strong>. Agregá componentes, elegí el tipo de cable y seleccioná los dos bornes en el editor. Accioná las llaves y revisá el resultado en <strong>Simulación ideal</strong>. Poné un nombre y pulsá <strong>Guardar esquema</strong> para volver a abrirlo desde la misma obra.</p>
+      </section>
+
+      <section id="practica" aria-labelledby="titulo-practica">
+        <h2 id="titulo-practica">Studio y Lecciones</h2>
+        <h3>Studio, si aparece en tu versión</h3>
+        <p>En <strong>Montar</strong>, elegí una pieza y una posición en el riel DIN. En <strong>Conectar</strong>, seleccioná dos bornes para agregar un tramo y usá la lista <strong>Tramos</strong> para ajustar su color y sección. En <strong>Materiales</strong>, consultá el recuento de piezas y tramos del gabinete. El borrador queda guardado en ese navegador y el recuento se consulta dentro de Studio.</p>
+        <h3>Lecciones</h3>
+        <p>Abrí <strong>Lecciones</strong> para repasar electricidad domiciliaria. Elegí un tema del catálogo y, cuando la lección incluya un ejercicio, seleccioná una respuesta para ver la devolución.</p>
+      </section>
+
+      <section id="ayuda" aria-labelledby="titulo-ayuda">
+        <h2 id="titulo-ayuda">Resolver problemas</h2>
+        <dl>
+          <dt>El PDF muestra un precio anterior</dt>
+          <dd>Verificá qué versión abriste. Para cotizar a valores nuevos, actualizá el catálogo y generá otra versión desde la obra.</dd>
+          <dt>No puedo generar el presupuesto</dt>
+          <dd>Si estás editando un material, guardalo o cancelá la edición. Si aparece un error al cargar el presupuesto, usá <strong>Volver a intentar</strong>.</dd>
+          <dt>WhatsApp no recibe el PDF</dt>
+          <dd><strong>Copiar mensaje para WhatsApp</strong> copia el texto. Descargá el PDF y adjuntalo desde el chat.</dd>
+          <dt>Falta un circuito en el unifilar</dt>
+          <dd>Revisá en <strong>Circuitos</strong> a qué tablero pertenece y comprobá que ese tablero esté asociado al proyecto que abriste.</dd>
+        </dl>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
